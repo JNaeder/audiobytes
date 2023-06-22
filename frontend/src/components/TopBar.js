@@ -19,7 +19,7 @@ function TopBar() {
           alignItems: "center",
           top: 0,
           left: 0,
-          backgroundColor: "background.dark",
+          backgroundColor: "background.darkest",
         }}
       >
         <Box
