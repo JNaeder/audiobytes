@@ -2,6 +2,32 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#7798AB",
+    },
+    background: {
+      darkest: "#242423",
+      dark: "#333533",
+    },
+  },
+  shape: {
+    borderRadius: 10,
+  },
+  typography: {
+    allVariants: {
+      color: "#EEF8E2",
+    },
+  },
+});
+console.log(theme);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+  <ThemeProvider theme={theme}>
+    <App />
+  </ThemeProvider>
+);

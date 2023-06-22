@@ -1,9 +1,17 @@
-import { Typography } from "@mui/material";
+import { Box } from "@mui/material";
+import TopBar from "./components/TopBar";
 
 function App() {
   return (
     <>
-      <Typography variant="h3">audiobytes.app</Typography>
+      <TopBar />
+      <Box
+        sx={{
+          width: "100vw",
+          height: "94vh",
+          backgroundColor: "background.darkest",
+        }}
+      ></Box>
     </>
   );
 }
