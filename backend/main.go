@@ -34,6 +34,17 @@ type Song struct {
 	ArtURL       sql.NullString `json:"artURL"`
 }
 
+type HomePageSong struct {
+	SongID       uuid.UUID      `json:"songID"`
+	UserID       uuid.UUID      `json:"userID"`
+	Name         string         `json:"name"`
+	StorageURL   string         `json:"storageURL"`
+	DateUploaded time.Time      `json:"dateUploaded"`
+	ArtURL       sql.NullString `json:"artURL"`
+	Username     string         `json:"username"`
+	PicURL       string         `json:"picURL"`
+}
+
 func getDBPool() *pgxpool.Pool {
 	pool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
@@ -105,6 +116,37 @@ func getAllSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func getHomePageSongs(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		query := "SELECT * FROM home_page_songs ORDER BY date_uploaded DESC "
+		rows, err := conn.Query(context.Background(), query)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		var allSongs []HomePageSong
+
+		for rows.Next() {
+			var newSong HomePageSong
+			err := rows.Scan(&newSong.SongID, &newSong.UserID, &newSong.Name, &newSong.StorageURL,
+				&newSong.DateUploaded, &newSong.ArtURL, &newSong.Username, &newSong.PicURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			allSongs = append(allSongs, newSong)
+		}
+
+		c.JSON(http.StatusOK, allSongs)
+	}
+}
+
 func getUserByID(pool *pgxpool.Pool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conn, err := pool.Acquire(context.Background())
@@ -146,6 +188,7 @@ func main() {
 	// Setup Paths
 	router.GET("/users", getAllUsers(pool))
 	router.GET("/songs", getAllSongs(pool))
+	router.GET("/homepage/songs", getHomePageSongs(pool))
 	router.GET("/users/:id", getUserByID(pool))
 
 	// Run it

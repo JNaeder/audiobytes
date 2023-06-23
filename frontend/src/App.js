@@ -1,25 +1,10 @@
-import { useEffect, useState } from "react";
-
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import TopBar from "./components/TopBar";
 import NavBar from "./components/NavBar";
 import PlayBar from "./components/PlayBar";
-
-import axios from "axios";
+import HomePage from "./components/HomePage";
 
 function App() {
-  const [allUsers, setAllUsers] = useState([]);
-
-  useEffect(() => {
-    const getData = async () => {
-      const response = await axios.get("http://localhost:8080/users");
-      setAllUsers(response.data);
-      console.log(response.data);
-    };
-
-    getData();
-  }, []);
-
   return (
     <>
       <TopBar />
@@ -29,8 +14,13 @@ function App() {
           width: "100vw",
           height: "78vh",
           backgroundColor: "background.darkest",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
-      ></Box>
+      >
+        <HomePage />
+      </Box>
       <PlayBar />
     </>
   );
