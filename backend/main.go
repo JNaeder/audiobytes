@@ -6,7 +6,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
@@ -34,96 +34,121 @@ type Song struct {
 	ArtURL       sql.NullString `json:"artURL"`
 }
 
-func getAllUsers(c *gin.Context) {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
+func getDBPool() *pgxpool.Pool {
+	pool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
-		log.Fatal("Could not connect to DB", err)
+		log.Fatal("Couldn't connect to pool: ", err)
 	}
-	defer conn.Close(context.Background())
+	return pool
+}
 
-	query := "SELECT * FROM users"
-	rows, err := conn.Query(context.Background(), query)
-	if err != nil {
-		log.Fatal("Could not complete query: ", err)
-	}
-
-	var allUsers []User
-
-	for rows.Next() {
-		var newUser User
-		err := rows.Scan(&newUser.UserID, &newUser.Username, &newUser.Email,
-			&newUser.PicURL, &newUser.MemberSince, &newUser.LastLogin)
+func getAllUsers(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
-		allUsers = append(allUsers, newUser)
-	}
+		defer conn.Release()
 
-	c.JSON(http.StatusOK, allUsers)
+		query := "SELECT * FROM users"
+		rows, err := conn.Query(context.Background(), query)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		var allUsers []User
+
+		for rows.Next() {
+			var newUser User
+			err := rows.Scan(&newUser.UserID, &newUser.Username, &newUser.Email,
+				&newUser.PicURL, &newUser.MemberSince, &newUser.LastLogin)
+			if err != nil {
+				log.Fatal(err)
+			}
+			allUsers = append(allUsers, newUser)
+		}
+
+		c.JSON(http.StatusOK, allUsers)
+
+	}
 }
 
-func getAllSongs(c *gin.Context) {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
-	if err != nil {
-		log.Fatal("Could not connect to DB", err)
-	}
-	defer conn.Close(context.Background())
-
-	query := "SELECT * FROM songs"
-	rows, err := conn.Query(context.Background(), query)
-	if err != nil {
-		log.Fatal("Could not complete query: ", err)
-	}
-
-	var allSongs []Song
-
-	for rows.Next() {
-		var newSong Song
-		err := rows.Scan(&newSong.SongID, &newSong.UserID, &newSong.Name,
-			&newSong.Length, &newSong.StorageURL, &newSong.Plays,
-			&newSong.DateUploaded, &newSong.ArtURL)
+func getAllSongs(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer conn.Release()
 
-		allSongs = append(allSongs, newSong)
+		query := "SELECT * FROM songs"
+		rows, err := conn.Query(context.Background(), query)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		var allSongs []Song
+
+		for rows.Next() {
+			var newSong Song
+			err := rows.Scan(&newSong.SongID, &newSong.UserID, &newSong.Name,
+				&newSong.Length, &newSong.StorageURL, &newSong.Plays,
+				&newSong.DateUploaded, &newSong.ArtURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			allSongs = append(allSongs, newSong)
+		}
+
+		c.JSON(http.StatusOK, allSongs)
 	}
-
-	c.JSON(http.StatusOK, allSongs)
 }
 
-func getUserByID(c *gin.Context) {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
-	if err != nil {
-		log.Fatal("Could not connect to DB", err)
+func getUserByID(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		userID := c.Param("id")
+		query := "SELECT * FROM users WHERE user_id = $1"
+		var user User
+
+		err = conn.QueryRow(context.Background(), query,
+			userID).Scan(&user.UserID, &user.Username, &user.Email, &user.PicURL,
+			&user.MemberSince, &user.LastLogin)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		c.JSON(http.StatusOK, user)
 	}
-	defer conn.Close(context.Background())
-
-	userID := c.Param("id")
-	query := "SELECT * FROM users WHERE user_id = $1"
-	var user User
-
-	err = conn.QueryRow(context.Background(), query,
-		userID).Scan(&user.UserID, &user.Username, &user.Email, &user.PicURL,
-		&user.MemberSince, &user.LastLogin)
-	if err != nil {
-		log.Fatal("Could not complete query: ", err)
-	}
-
-	c.JSON(http.StatusOK, user)
 }
 
 func main() {
+	// Load .env Variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Could not load .env file", err)
 	}
 
+	// Create Pool
+	pool := getDBPool()
+	defer pool.Close()
+
+	// Setup Router
 	router := gin.Default()
 	router.Use(cors.Default())
-	router.GET("/users", getAllUsers)
-	router.GET("/songs", getAllSongs)
-	router.GET("/users/:id", getUserByID)
+
+	// Setup Paths
+	router.GET("/users", getAllUsers(pool))
+	router.GET("/songs", getAllSongs(pool))
+	router.GET("/users/:id", getUserByID(pool))
+
+	// Run it
 	err = router.Run("localhost:8080")
 	if err != nil {
 		log.Fatal("Could not start!", err)
