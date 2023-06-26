@@ -4,16 +4,71 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import heartIcon from "../imgs/icons/heart.png";
 import playIcon from "../imgs/icons/play-button.png";
+import pauseIcon from "../imgs/icons/pause-button.png";
 import nextIcon from "../imgs/icons/next.png";
 import { useSelector } from "react-redux";
+import { useRef, useState } from "react";
+
+const formatTime = (time) => {
+  if (time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+  } else {
+    return "0:00";
+  }
+};
 
 function PlayBar() {
+  const audioRef = useRef(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [songPercent, setSongPercent] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const currentSong = useSelector((state) => state.song.currentSong);
   const albumImage = currentSong ? currentSong.artURL.String : "";
   const songName = currentSong ? currentSong.name : "--------";
   const songUser = currentSong ? currentSong.username : "----------";
+
+  const playSong = () => {
+    if (currentSong) {
+      if (audioRef.current.src !== currentSong.storageURL) {
+        audioRef.current.src = currentSong.storageURL;
+      }
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const updateTime = () => {
+    if (isPlaying) {
+      const duration = formatTime(audioRef.current.duration);
+      const currentTime = formatTime(audioRef.current.currentTime);
+      const songPercent = Math.floor(
+        (audioRef.current.currentTime / audioRef.current.duration) * 100
+      );
+      setCurrentTime(currentTime);
+      setDuration(duration);
+      setSongPercent(songPercent);
+    }
+  };
+
+  const changeTime = (e, value) => {
+    console.log("Change time!");
+    console.log(value);
+    audioRef.current.currentTime = value;
+    console.log(e);
+  };
+
   return (
     <>
+      <audio ref={audioRef} onTimeUpdate={updateTime} />
       <Box
         sx={{
           width: "100vw",
@@ -66,11 +121,12 @@ function PlayBar() {
             />
           </IconButton>
           <IconButton
+            onClick={playSong}
             sx={{
               height: "100%",
             }}
           >
-            <img src={playIcon} height="80%" />
+            <img src={isPlaying ? pauseIcon : playIcon} height="80%" />
           </IconButton>
           <IconButton
             sx={{
@@ -91,7 +147,7 @@ function PlayBar() {
             gap: "20px",
           }}
         >
-          <Typography variant="subtitle1">{"0:00"}</Typography>
+          <Typography variant="subtitle1">{currentTime}</Typography>
           <Slider
             sx={{
               width: "80%",
@@ -102,6 +158,7 @@ function PlayBar() {
                 color: "#EEF8E2",
                 height: "30px",
                 width: "30px",
+                // transition: "2s",
               },
               "& .MuiSlider-rail": {
                 height: "20px",
@@ -109,8 +166,11 @@ function PlayBar() {
                 opacity: 1,
               },
             }}
+            value={songPercent}
+            onChange={changeTime}
+            step={0.01}
           />
-          <Typography variant="subtitle1">{"3:30"}</Typography>
+          <Typography variant="subtitle1">{duration}</Typography>
         </Box>
       </Box>
     </>
