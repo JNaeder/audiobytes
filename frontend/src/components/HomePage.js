@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import SongBoxSmall from "../components/SongBoxSmall";
+import SongBoxSmall from "../components/SongBoxSmall/SongBoxSmall";
 
 import axios from "axios";
 

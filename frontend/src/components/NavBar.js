@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import { Typography } from "@mui/material";
+import NavBarButton from "./NavBarButton";
 import homeIcon from "../imgs/icons/home.png";
 import musicIcon from "../imgs/icons/wave-sound.png";
 import uploadIcon from "../imgs/icons/cloud-computing.png";
@@ -28,41 +27,11 @@ function NavBar() {
             alignItems: "center",
           }}
         >
-          <Button
-            variant="contained"
-            startIcon={<img src={homeIcon} height="20px" />}
-            sx={{
-              backgroundColor: "background.darkest",
-            }}
-          >
-            <Typography>Home</Typography>
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<img src={musicIcon} height="20px" />}
-            sx={{
-              backgroundColor: "background.darkest",
-            }}
-          >
-            <Typography>My Music</Typography>
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<img src={uploadIcon} height="20px" />}
-            sx={{
-              backgroundColor: "background.darkest",
-            }}
-          >
-            <Typography>Upload</Typography>
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "background.darkest",
-            }}
-          >
-            <Typography>About</Typography>
-          </Button>
+          <NavBarButton icon={homeIcon} text={"Home"} path={"/"} />
+          <NavBarButton icon={musicIcon} text={"My Music"} path={"/mymusic"} />
+          <NavBarButton icon={uploadIcon} text={"Upload"} path={"/upload"} />
+          <NavBarButton icon={null} text={"About"} path={"/about"} />
+          <NavBarButton icon={null} text={"Visualizer"} path={"/visualizer"} />
         </Box>
       </Box>
     </>

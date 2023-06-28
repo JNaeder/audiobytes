@@ -36,6 +36,7 @@ type Song struct {
 
 type HomePageSong struct {
 	SongID       uuid.UUID      `json:"songID"`
+	Likes        int8           `json:"likes"`
 	UserID       uuid.UUID      `json:"userID"`
 	Name         string         `json:"name"`
 	StorageURL   string         `json:"storageURL"`
@@ -134,7 +135,7 @@ func getHomePageSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 
 		for rows.Next() {
 			var newSong HomePageSong
-			err := rows.Scan(&newSong.SongID, &newSong.UserID, &newSong.Name, &newSong.StorageURL,
+			err := rows.Scan(&newSong.SongID, &newSong.Likes, &newSong.UserID, &newSong.Name, &newSong.StorageURL,
 				&newSong.DateUploaded, &newSong.ArtURL, &newSong.Username, &newSong.PicURL)
 			if err != nil {
 				log.Fatal(err)
@@ -170,6 +171,28 @@ func getUserByID(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func getLikesBySongID(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		songID := c.Param("songid")
+		query := "SELECT COUNT(user_id) FROM songlikes WHERE song_id=$1 GROUP BY song_id"
+
+		var likes int8
+
+		err = conn.QueryRow(context.Background(), query, songID).Scan(&likes)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		c.JSON(http.StatusOK, likes)
+	}
+}
+
 func main() {
 	// Load .env Variables
 	err := godotenv.Load()
@@ -190,6 +213,7 @@ func main() {
 	router.GET("/songs", getAllSongs(pool))
 	router.GET("/homepage/songs", getHomePageSongs(pool))
 	router.GET("/users/:id", getUserByID(pool))
+	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 
 	// Run it
 	err = router.Run("localhost:8080")
