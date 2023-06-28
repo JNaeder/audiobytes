@@ -25,6 +25,7 @@ function PlayBar() {
   const [duration, setDuration] = useState(0);
   const [songPercent, setSongPercent] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [desiredTime, setDesiredTime] = useState(0);
 
   const currentSong = useSelector((state) => state.song.currentSong);
   const albumImage = currentSong ? currentSong.artURL.String : "";
@@ -60,10 +61,11 @@ function PlayBar() {
   };
 
   const changeTime = (e, value) => {
-    console.log("Change time!");
-    console.log(value);
-    audioRef.current.currentTime = value;
-    console.log(e);
+    setDesiredTime(value);
+  };
+
+  const handleMouseUp = () => {
+    audioRef.current.currentTime = desiredTime;
   };
 
   return (
@@ -72,7 +74,7 @@ function PlayBar() {
       <Box
         sx={{
           width: "100vw",
-          height: "10vh",
+          height: "60px",
           backgroundColor: "background.dark",
           display: "flex",
           flexDirection: "row",
@@ -152,16 +154,16 @@ function PlayBar() {
             sx={{
               width: "80%",
               "& .MuiSlider-track": {
-                height: "20px",
+                height: "7px",
+                // transition: "2s",
               },
               "& .MuiSlider-thumb": {
                 color: "#EEF8E2",
-                height: "30px",
-                width: "30px",
-                // transition: "2s",
+                height: "10px",
+                width: "10px",
               },
               "& .MuiSlider-rail": {
-                height: "20px",
+                height: "7px",
                 color: "background.darkest",
                 opacity: 1,
               },
@@ -169,6 +171,7 @@ function PlayBar() {
             value={songPercent}
             onChange={changeTime}
             step={0.01}
+            onMouseUp={handleMouseUp}
           />
           <Typography variant="subtitle1">{duration}</Typography>
         </Box>

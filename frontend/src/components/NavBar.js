@@ -11,7 +11,7 @@ function NavBar() {
       <Box
         sx={{
           width: "100vw",
-          height: "6vh",
+          height: "50px",
           backgroundColor: "background.dark",
           display: "flex",
           flexDirection: "row",
@@ -21,7 +21,7 @@ function NavBar() {
       >
         <Box
           sx={{
-            width: "25%",
+            width: "50%",
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-evenly",
@@ -54,6 +54,14 @@ function NavBar() {
             }}
           >
             <Typography>Upload</Typography>
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "background.darkest",
+            }}
+          >
+            <Typography>About</Typography>
           </Button>
         </Box>
       </Box>

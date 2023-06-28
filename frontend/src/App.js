@@ -12,7 +12,7 @@ function App() {
       <Box
         sx={{
           width: "100vw",
-          height: "78vh",
+          height: "calc(100vh - 160px)",
           backgroundColor: "background.darkest",
           display: "flex",
           justifyContent: "center",

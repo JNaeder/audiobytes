@@ -11,7 +11,7 @@ function TopBar() {
     <>
       <Box
         width="100vw"
-        height="6vh"
+        height="50px"
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -60,17 +60,17 @@ function TopBar() {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              width: "22%",
-              minWidth: "300px",
+              width: "20%",
+              minWidth: "250px",
             }}
           >
-            <Typography variant="h5">drmonkfish</Typography>
+            <Typography variant="h6">drmonkfish</Typography>
             <Avatar
               alt="profilePic"
               src={profilePic}
               sx={{
-                height: "40px",
-                width: "40px",
+                height: "38px",
+                width: "38px",
                 border: "2px solid #7798AB",
               }}
             />

@@ -28,13 +28,16 @@ function SongBoxSmall({ song }) {
           sx={{
             backgroundColor: "background.darkest",
             display: "flex",
+            height: "120px",
           }}
         >
           <ButtonBase
             onClick={setSong}
-            sx={{
-              width: "25%",
-            }}
+            sx={
+              {
+                // height: "20%",
+              }
+            }
           >
             <CardMedia component="img" src={song.artURL.String} />
           </ButtonBase>
@@ -46,7 +49,7 @@ function SongBoxSmall({ song }) {
             }}
           >
             <Box>
-              <Typography variant="h3">{song.name}</Typography>
+              <Typography variant="h4">{song.name}</Typography>
             </Box>
             <Box
               sx={{
