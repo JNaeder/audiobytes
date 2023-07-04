@@ -216,7 +216,7 @@ func main() {
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 
 	// Run it
-	err = router.Run("localhost:8080")
+	err = router.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Fatal("Could not start!", err)
 	}
