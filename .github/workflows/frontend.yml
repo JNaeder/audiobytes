@@ -21,11 +21,11 @@ jobs:
       with:
         node-version: 18   # Change this to your desired Node.js version
 
-    # - name: Install dependencies
-    #   run: npm install
+    - name: Install dependencies
+      run: npm install
 
-    # - name: Build the React app
-    #   run: npm run build   # Change this if you use a different build command
+    - name: Build the React app
+      run: npm run build   # Change this if you use a different build command
 
     - name: test
       run: ls
