@@ -13,19 +13,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Test
+    - name: Move to Frontend
+      run: cd frontend
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18   # Change this to your desired Node.js version
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build the React app
+      run: npm run build   # Change this if you use a different build command
+
+    - name: test
       run: ls
-
-    # - name: Set up Node.js
-    #   uses: actions/setup-node@v3
-    #   with:
-    #     node-version: 18   # Change this to your desired Node.js version
-
-    # - name: Install dependencies
-    #   run: npm install
-
-    # - name: Build the React app
-    #   run: npm run build   # Change this if you use a different build command
 
     # - name: Deploy to server
     #   uses: easingthemes/ssh-deploy@v4.1.8
