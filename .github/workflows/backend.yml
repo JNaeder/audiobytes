@@ -36,4 +36,4 @@ jobs:
         TARGET: ${{ secrets.REMOTE_BE_TARGET }}
 
     - name: Restart Remote Service
-      run: ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "sudo systemctl restart audiobytesBE.service"
+      run: ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "sudo systemctl restart audiobytesBE.service"
