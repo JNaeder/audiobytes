@@ -12,8 +12,10 @@ function HomePage() {
     const getData = async () => {
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
+      // const response = await axios.get(
+      //   `${protocol}//${hostname}:8080/homepage/songs`);
       const response = await axios.get(
-        `${protocol}//${hostname}:8080/homepage/songs`
+        `${protocol}//${hostname}/api/homepage/songs`
       );
       setAllSongs(response.data);
     };
