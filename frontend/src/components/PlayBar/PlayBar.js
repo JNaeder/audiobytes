@@ -80,7 +80,7 @@ function PlayBar() {
       setCurrentTime("0:00");
       setSongPercent(0);
     }
-  }, [currentSong]);
+  }, [currentSong, dispatch]);
 
   return (
     <>

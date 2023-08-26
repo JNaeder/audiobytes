@@ -29,7 +29,7 @@ function Visualizer() {
         }}
       >
         <Box sx={{ height: "95%" }}>
-          <img src={imgSrc} height="100%" />
+          <img src={imgSrc} height="100%" alt="Album Art" />
         </Box>
         <Box
           sx={{

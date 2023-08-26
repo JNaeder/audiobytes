@@ -26,6 +26,7 @@ function TransportControls({ playSong, isPlaying }) {
             src={nextIcon}
             style={{ transform: "scaleX(-1)" }}
             height="40%"
+            alt="Prev Icon"
           />
         </IconButton>
         <IconButton
@@ -34,14 +35,18 @@ function TransportControls({ playSong, isPlaying }) {
             height: "100%",
           }}
         >
-          <img src={isPlaying ? pauseIcon : playIcon} height="80%" />
+          <img
+            src={isPlaying ? pauseIcon : playIcon}
+            height="80%"
+            alt="Play Button"
+          />
         </IconButton>
         <IconButton
           sx={{
             height: "100%",
           }}
         >
-          <img src={nextIcon} height="40%" />
+          <img src={nextIcon} height="40%" alt="Next Icon" />
         </IconButton>
       </Box>
     </>

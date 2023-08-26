@@ -33,7 +33,7 @@ function SongBoxSongInfo({ song }) {
             alignItems: "center",
           }}
         >
-          <img src={heartIcon} height="15px" />
+          <img src={heartIcon} height="15px" alt="like icon" />
           <Typography variant="subtitle1">{likes}</Typography>
         </Box>
         <Box
@@ -43,7 +43,7 @@ function SongBoxSongInfo({ song }) {
             alignItems: "center",
           }}
         >
-          <img src={commentIcon} height="15px" />
+          <img src={commentIcon} height="15px" alt="comment icon" />
           <Typography variant="subtitle1">{"0"}</Typography>
         </Box>
         <Box
@@ -53,7 +53,7 @@ function SongBoxSongInfo({ song }) {
             alignItems: "center",
           }}
         >
-          <img src={playIcon} height="15px" />
+          <img src={playIcon} height="15px" alt="plays icon" />
           <Typography variant="subtitle1">{"0"}</Typography>
         </Box>
       </Box>

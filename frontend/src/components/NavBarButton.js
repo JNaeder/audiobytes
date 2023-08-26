@@ -7,7 +7,7 @@ function NavBarButton({ icon, text, path }) {
     <>
       <Button
         variant="contained"
-        startIcon={<img src={icon} height="20px" />}
+        startIcon={<img src={icon} height="20px" alt="Start Icon" />}
         sx={{
           backgroundColor: "background.darkest",
         }}
