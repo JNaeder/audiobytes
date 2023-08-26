@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master   # Change this to your main branch name
+    # paths:
+    #   - 'backend' 
 
 jobs:
   build_and_deploy:
@@ -32,3 +34,6 @@ jobs:
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         TARGET: ${{ secrets.REMOTE_BE_TARGET }}
+
+    - name: Restart Remote Service
+      run: ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USERNAME }}@${{ secrets.REMOTE_HOST }} "sudo systemctl restart audiobytesBE.service"
