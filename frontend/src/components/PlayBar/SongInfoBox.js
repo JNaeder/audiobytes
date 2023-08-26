@@ -2,6 +2,7 @@ import heartIcon from "../../imgs/icons/heart.png";
 import { Box, IconButton, Typography } from "@mui/material";
 
 function SongInfoBox({ currentSong }) {
+  // Testing Comment
   const albumImage = currentSong ? currentSong.artURL.String : "";
   const songName = currentSong ? currentSong.name : "--------";
   const songUser = currentSong ? currentSong.username : "----------";
@@ -18,14 +19,20 @@ function SongInfoBox({ currentSong }) {
           gap: "20px",
         }}
       >
-        <img src={albumImage} height="100%" alt="Album Art" />
-        <Box>
-          <Typography variant="h6">{songName}</Typography>
-          <Typography variant="subtitle2">{songUser}</Typography>
-        </Box>
-        <IconButton>
-          <img src={heartIcon} height="20px" alt="like icon" />
-        </IconButton>
+        {currentSong ? (
+          <>
+            <img src={albumImage} height="100%" alt="Album Art" />
+            <Box>
+              <Typography variant="h6">{songName}</Typography>
+              <Typography variant="subtitle2">{songUser}</Typography>
+            </Box>
+            <IconButton>
+              <img src={heartIcon} height="20px" alt="like icon" />
+            </IconButton>
+          </>
+        ) : (
+          ""
+        )}
       </Box>
     </>
   );
