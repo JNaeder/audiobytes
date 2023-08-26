@@ -24,15 +24,11 @@ jobs:
     - name: Build the Go API app
       run: go build -o api   # Change the binary name if necessary
 
-    - name: test
-      run: ls
-
-    # - name: Deploy to server
-    #   uses: easingthemes/ssh-deploy@v2
-    #   with:
-    #     command: scp   # You can use 'rsync', 'scp', or other deployment methods
-    #     local_files: ./myapp   # Path to your built Go binary
-    #     remote_path: '/path/to/remote/directory'   # Change this to your remote directory path
-    #     host: ${{ secrets.REMOTE_HOST }}
-    #     username: ${{ secrets.REMOTE_USERNAME }}
-    #     password: ${{ secrets.REMOTE_PASSWORD }}   # Use SSH key if possible
+    - name: Deploy to server
+      uses: easingthemes/ssh-deploy@v4.1.8
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SOURCE: "backend/api"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_BE_TARGET }}
