@@ -27,12 +27,10 @@ jobs:
     - name: Build the React app
       run: npm run build   # Change this if you use a different build command
 
-    - name: test
-      run: ls
-
-    # - name: Deploy to server
-    #   uses: easingthemes/ssh-deploy@v4.1.8
-    #   with:
-    #     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-    #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
-    #     TARGET: ${{ secrets.REMOTE_TARGET }}  # Use SSH key if possible
+    - name: Deploy to server
+      uses: easingthemes/ssh-deploy@v4.1.8
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
