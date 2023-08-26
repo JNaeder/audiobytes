@@ -19,7 +19,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16   # Change this to your desired Go version
+        go-version: 1.20   # Change this to your desired Go version
 
     - name: Build the Go API app
       run: go build -o api   # Change the binary name if necessary
