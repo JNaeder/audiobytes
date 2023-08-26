@@ -15,9 +15,6 @@ function HomePage() {
       const response = await axios.get(
         `${protocol}//${hostname}:8080/homepage/songs`
       );
-      // const response = await axios.get(
-      //   `${protocol}//${hostname}/api/homepage/songs`
-      // );
       setAllSongs(response.data);
     };
 
