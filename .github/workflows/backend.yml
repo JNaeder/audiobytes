@@ -1,0 +1,38 @@
+name: Build and Deploy Go API App
+
+on:
+  push:
+    branches:
+      - main   # Change this to your main branch name
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.16   # Change this to your desired Go version
+
+    - name: Build the Go API app
+      run: go build -o myapp   # Change the binary name if necessary
+
+    - name: test
+      run: ls
+
+    # - name: Deploy to server
+    #   uses: easingthemes/ssh-deploy@v2
+    #   with:
+    #     command: scp   # You can use 'rsync', 'scp', or other deployment methods
+    #     local_files: ./myapp   # Path to your built Go binary
+    #     remote_path: '/path/to/remote/directory'   # Change this to your remote directory path
+    #     host: ${{ secrets.REMOTE_HOST }}
+    #     username: ${{ secrets.REMOTE_USERNAME }}
+    #     password: ${{ secrets.REMOTE_PASSWORD }}   # Use SSH key if possible
