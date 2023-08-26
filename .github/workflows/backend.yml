@@ -3,9 +3,9 @@ name: Build and Deploy Go API App
 on:
   push:
     branches:
-      - master   # Change this to your main branch name
-    # paths:
-    #   - 'backend' 
+      - master
+    paths:
+      - 'backend' 
 
 jobs:
   build_and_deploy:
