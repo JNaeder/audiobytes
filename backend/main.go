@@ -106,6 +106,7 @@ func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
 }
 
 func loginUser(pool *pgxpool.Pool) gin.HandlerFunc {
+	//Let us see if this works
 	return func(c *gin.Context) {
 		conn, err := pool.Acquire(context.Background())
 		if err != nil {
