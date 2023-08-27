@@ -1,4 +1,4 @@
-import { Box, Button, Typography, TextField, FormControl } from "@mui/material";
+import { Box, Button, Typography, TextField, Alert } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -13,6 +13,7 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
+  const [error, setError] = useState(null);
 
   const checkPasswords = () => {
     if (password === "" || passwordCheck === "") {
@@ -24,19 +25,32 @@ function SignupPage() {
     return true;
   };
 
+  const checkPasswordStrength = () => {
+    if (password === "") {
+      return false;
+    }
+    if (password.length < 8) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     if (!checkPasswords()) {
+      setError("Passwords do not match");
       return;
     }
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
+    if (!checkPasswordStrength()) {
+      setError("Password is not strong enough");
+      return;
+    }
     const data = {
       username: username,
       email: email,
       password: password,
     };
     const response = await axios.post(
-      `${protocol}//${hostname}:8080/register`,
+      `${process.env.REACT_APP_API_ENDPOINT}/register`,
       data
     );
     if (response.status === 201) {
@@ -54,6 +68,7 @@ function SignupPage() {
           justifyContent: "center",
           alignItems: "center",
           width: "100vw",
+          height: "100%",
         }}
       >
         <Typography variant="h5">Signup</Typography>
@@ -61,43 +76,75 @@ function SignupPage() {
           sx={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "space-evenly",
             alignItems: "center",
             color: "white",
             backgroundColor: "background.dark",
-            width: "50%",
+            width: "30%",
+            height: "70%",
             borderRadius: "10px",
-            padding: "20px",
+            padding: "50px",
           }}
         >
-          <FormControl>
-            <TextField
-              id="username"
-              label="Username"
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-              id="email"
-              label="Email"
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-              id="password"
-              label="Password"
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <TextField
-              id="password"
-              label="Verify Password"
-              type="password"
-              onChange={(e) => setPasswordCheck(e.target.value)}
-            />
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </FormControl>
+          {error ? <Alert severity="error">{error}</Alert> : <div></div>}
+          <TextField
+            id="username"
+            label="Username"
+            inputProps={{ style: { color: "white" } }}
+            fullWidth
+            onChange={(e) => {
+              setError(null);
+              setUsername(e.target.value);
+            }}
+          />
+          <TextField
+            id="email"
+            label="Email"
+            type="email"
+            inputProps={{ style: { color: "white" } }}
+            fullWidth
+            onChange={(e) => {
+              setError(null);
+              setEmail(e.target.value);
+            }}
+          />
+          <TextField
+            id="password"
+            label="Password"
+            type="password"
+            inputProps={{ style: { color: "white" } }}
+            fullWidth
+            onChange={(e) => {
+              setError(null);
+              setPassword(e.target.value);
+            }}
+          />
+          <TextField
+            id="password"
+            label="Verify Password"
+            type="password"
+            inputProps={{ style: { color: "white" } }}
+            fullWidth
+            onChange={(e) => {
+              setError(null);
+              setPasswordCheck(e.target.value);
+            }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSubmit}
+          >
+            Signup
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </Button>
         </Box>
       </Box>
     </>

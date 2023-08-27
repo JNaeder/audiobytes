@@ -92,9 +92,12 @@ function TopBar() {
                 </Button>
               </>
             ) : (
-              <Button variant="contained" onClick={() => navigate("/login")}>
-                Login
-              </Button>
+              <>
+                <div></div>
+                <Button variant="contained" onClick={() => navigate("/login")}>
+                  Login
+                </Button>
+              </>
             )}
           </Box>
         </Box>

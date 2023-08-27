@@ -17,12 +17,13 @@ import (
 )
 
 type User struct {
-	UserID      uuid.UUID      `json:"ID"`
+	UserID      uuid.UUID      `json:"userId"`
 	Username    string         `json:"username"`
 	Email       string         `json:"email"`
 	PicURL      sql.NullString `json:"picURL"`
 	MemberSince time.Time      `json:"memberSince"`
 	LastLogin   time.Time      `json:"lastLogin"`
+	HashedPass  string         `json:"hashedPass"`
 }
 
 type Song struct {
@@ -54,6 +55,11 @@ type RegisterUserRequest struct {
 	Password string `json:"password"`
 }
 
+type LoginUserRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 func getDBPool() *pgxpool.Pool {
 	pool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
@@ -71,7 +77,7 @@ func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
 		defer conn.Release()
 
 		var reqUser RegisterUserRequest
-		var user_id uuid.UUID
+		var userId uuid.UUID
 
 		err = c.BindJSON(&reqUser)
 		if err != nil {
@@ -86,13 +92,13 @@ func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		query := "INSERT INTO users (username, email, hashed_password) VALUES ($1, $2, $3) RETURNING user_id"
-		err = conn.QueryRow(context.Background(), query, reqUser.Username, reqUser.Email, hashedPassword).Scan(&user_id)
+		err = conn.QueryRow(context.Background(), query, reqUser.Username, reqUser.Email, hashedPassword).Scan(&userId)
 		if err != nil {
 			log.Fatal("Could not complete query: ", err)
 		}
 
 		c.JSON(http.StatusCreated, gin.H{
-			"userID":   user_id,
+			"userID":   userId,
 			"username": reqUser.Username,
 			"email":    reqUser.Email,
 		})
@@ -106,6 +112,34 @@ func loginUser(pool *pgxpool.Pool) gin.HandlerFunc {
 			log.Fatal(err)
 		}
 		defer conn.Release()
+
+		var loginUser LoginUserRequest
+		err = c.BindJSON(&loginUser)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		query := "SELECT * FROM users WHERE username = $1"
+		var user User
+
+		err = conn.QueryRow(context.Background(), query, loginUser.Username).Scan(&user.UserID, &user.Username, &user.Email, &user.PicURL, &user.MemberSince, &user.LastLogin, &user.HashedPass)
+
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Invalid username or password",
+			})
+			return
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(user.HashedPass), []byte(loginUser.Password))
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"message": "Invalid username or password",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, user)
 	}
 }
 

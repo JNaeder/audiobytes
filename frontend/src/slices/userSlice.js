@@ -12,7 +12,7 @@ export const userSlice = createSlice({
     setCurrentUser(state, action) {
       state.username = action.payload.username;
       state.email = action.payload.email;
-      state.userId = action.payload.userID;
+      state.userId = action.payload.userId;
     },
 
     logout(state) {
