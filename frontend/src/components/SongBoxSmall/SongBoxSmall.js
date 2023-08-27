@@ -7,7 +7,6 @@ import SongBoxSongInfo from "./SongBoxSongInfo";
 import SongBoxUserInfo from "./SongBoxUserInfo";
 
 function SongBoxSmall({ song }) {
-  console.log(song);
   const dispatch = useDispatch();
 
   const setSong = () => {

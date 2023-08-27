@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"os"
@@ -46,12 +48,65 @@ type HomePageSong struct {
 	PicURL       string         `json:"picURL"`
 }
 
+type RegisterUserRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func getDBPool() *pgxpool.Pool {
 	pool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
 		log.Fatal("Couldn't connect to pool: ", err)
 	}
 	return pool
+}
+
+func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		var reqUser RegisterUserRequest
+		var user_id uuid.UUID
+
+		err = c.BindJSON(&reqUser)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Default().Println(reqUser)
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(reqUser.Password), bcrypt.DefaultCost)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+
+		query := "INSERT INTO users (username, email, hashed_password) VALUES ($1, $2, $3) RETURNING user_id"
+		err = conn.QueryRow(context.Background(), query, reqUser.Username, reqUser.Email, hashedPassword).Scan(&user_id)
+		if err != nil {
+			log.Fatal("Could not complete query: ", err)
+		}
+
+		c.JSON(http.StatusCreated, gin.H{
+			"userID":   user_id,
+			"username": reqUser.Username,
+			"email":    reqUser.Email,
+		})
+	}
+}
+
+func loginUser(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+	}
 }
 
 func getAllUsers(pool *pgxpool.Pool) gin.HandlerFunc {
@@ -209,6 +264,8 @@ func main() {
 	router.Use(cors.Default())
 
 	// Setup Paths
+	router.POST("/register", registerUser(pool))
+	router.POST("/login", loginUser(pool))
 	router.GET("/users", getAllUsers(pool))
 	router.GET("/songs", getAllSongs(pool))
 	router.GET("/homepage/songs", getHomePageSongs(pool))

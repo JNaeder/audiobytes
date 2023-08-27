@@ -8,6 +8,9 @@ import AboutPage from "./components/AboutPage";
 import MyMusic from "./components/MyMusic";
 import UploadPage from "./components/UploadPage";
 import Visualizer from "./components/Visualizer";
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
+import AuthPage from "./components/AuthPage";
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/visualizer" element={<Visualizer />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth" element={<AuthPage />} />
           </Routes>
         </Box>
         <PlayBar />

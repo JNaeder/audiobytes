@@ -2,8 +2,6 @@ import heartIcon from "../../imgs/icons/heart.png";
 import { Box, IconButton, Typography } from "@mui/material";
 
 function SongInfoBox({ currentSong }) {
-  // Testing Comment
-  // Another test
   const albumImage = currentSong ? currentSong.artURL.String : "";
   const songName = currentSong ? currentSong.name : "--------";
   const songUser = currentSong ? currentSong.username : "----------";
