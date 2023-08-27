@@ -10,10 +10,8 @@ function HomePage() {
 
   useEffect(() => {
     const getData = async () => {
-      const protocol = window.location.protocol;
-      const hostname = window.location.hostname;
       const response = await axios.get(
-        `${protocol}//${hostname}:8080/homepage/songs`
+        `${process.env.REACT_APP_API_ENDPOINT}/homepage/songs`
       );
       setAllSongs(response.data);
     };

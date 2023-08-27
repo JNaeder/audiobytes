@@ -1,12 +1,23 @@
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
+import { logout } from "../slices/userSlice";
 
 import logo from "../imgs/Logo-1.svg";
-import profilePic from "../imgs/profilePic.jpg";
 
 function TopBar() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { username, profilePic } = useSelector((state) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
+
   return (
     <>
       <Box
@@ -64,17 +75,30 @@ function TopBar() {
               minWidth: "250px",
             }}
           >
-            <Typography variant="h6">drmonkfish</Typography>
-            <Avatar
-              alt="profilePic"
-              src={profilePic}
-              sx={{
-                height: "38px",
-                width: "38px",
-                border: "2px solid #7798AB",
-              }}
-            />
-            <Button variant="contained">Logout</Button>
+            {username ? (
+              <>
+                <Typography variant="h6">{username}</Typography>
+                <Avatar
+                  alt="profilePic"
+                  src={profilePic}
+                  sx={{
+                    height: "38px",
+                    width: "38px",
+                    border: "2px solid #7798AB",
+                  }}
+                />
+                <Button variant="contained" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <div></div>
+                <Button variant="contained" onClick={() => navigate("/login")}>
+                  Login
+                </Button>
+              </>
+            )}
           </Box>
         </Box>
       </Box>
