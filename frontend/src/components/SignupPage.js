@@ -1,9 +1,20 @@
-import { Box, Button, Typography, TextField, Alert } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Alert,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { setCurrentUser } from "../slices/userSlice";
 import axios from "axios";
+import PasswordStrengthBar from "react-password-strength-bar";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -13,7 +24,13 @@ function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordCheck, setPasswordCheck] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const checkPasswords = () => {
     if (password === "" || passwordCheck === "") {
@@ -25,25 +42,28 @@ function SignupPage() {
     return true;
   };
 
-  const checkPasswordStrength = () => {
-    if (password === "") {
-      return false;
-    }
-    if (password.length < 8) {
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async () => {
+    if (username === "") {
+      setError("Username cannot be empty");
+      return;
+    }
+    if (email === "") {
+      setError("Email cannot be empty");
+      return;
+    }
+    if (password === "") {
+      setError("Password cannot be empty");
+      return;
+    }
     if (!checkPasswords()) {
       setError("Passwords do not match");
       return;
     }
-    if (!checkPasswordStrength()) {
+    if (passwordStrength < 2) {
       setError("Password is not strong enough");
       return;
     }
+
     const data = {
       username: username,
       email: email,
@@ -54,99 +74,164 @@ function SignupPage() {
       data
     );
     if (response.status === 201) {
-      dispatch(setCurrentUser(response.data));
-      navigate("/");
+      setSuccess("User Creation Successful");
+      setTimeout(() => {
+        dispatch(setCurrentUser(response.data));
+        navigate("/");
+      }, 2000);
     }
   };
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100vw",
-          height: "100%",
-        }}
-      >
-        <Typography variant="h5">Signup</Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-evenly",
-            alignItems: "center",
-            color: "white",
-            backgroundColor: "background.dark",
-            width: "30%",
-            height: "70%",
-            borderRadius: "10px",
-            padding: "50px",
-          }}
-        >
-          {error ? <Alert severity="error">{error}</Alert> : <div></div>}
-          <TextField
-            id="username"
-            label="Username"
-            inputProps={{ style: { color: "white" } }}
-            fullWidth
-            onChange={(e) => {
-              setError(null);
-              setUsername(e.target.value);
+      {success ? (
+        <>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
             }}
-          />
-          <TextField
-            id="email"
-            label="Email"
-            type="email"
-            inputProps={{ style: { color: "white" } }}
-            fullWidth
-            onChange={(e) => {
-              setError(null);
-              setEmail(e.target.value);
-            }}
-          />
-          <TextField
-            id="password"
-            label="Password"
-            type="password"
-            inputProps={{ style: { color: "white" } }}
-            fullWidth
-            onChange={(e) => {
-              setError(null);
-              setPassword(e.target.value);
-            }}
-          />
-          <TextField
-            id="password"
-            label="Verify Password"
-            type="password"
-            inputProps={{ style: { color: "white" } }}
-            fullWidth
-            onChange={(e) => {
-              setError(null);
-              setPasswordCheck(e.target.value);
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleSubmit}
           >
-            Signup
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => navigate("/login")}
+            <Alert severity="success" variant="filled">
+              {success}
+            </Alert>
+            <Typography variant="p" color="white">
+              Redirecting...
+            </Typography>
+          </Box>
+        </>
+      ) : (
+        <>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "30%",
+              height: "100%",
+            }}
           >
-            Login
-          </Button>
-        </Box>
-      </Box>
+            <Typography variant="h5">Signup</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-around",
+                alignItems: "center",
+                color: "white",
+                backgroundColor: "background.dark",
+                width: "100%",
+                height: "70%",
+                borderRadius: "10px",
+                padding: "50px",
+              }}
+            >
+              {error ? (
+                <Alert severity="error" variant="filled">
+                  {error}
+                </Alert>
+              ) : (
+                <div></div>
+              )}
+              <TextField
+                id="username"
+                label="Username"
+                inputProps={{ style: { color: "white" } }}
+                fullWidth
+                onChange={(e) => {
+                  setError(null);
+                  setUsername(e.target.value);
+                }}
+              />
+              <TextField
+                id="email"
+                label="Email"
+                type="email"
+                inputProps={{ style: { color: "white" } }}
+                fullWidth
+                onChange={(e) => {
+                  setError(null);
+                  setEmail(e.target.value);
+                }}
+              />
+              {/* <TextField
+                id="password"
+                label="Password"
+                type="password"
+                inputProps={{ style: { color: "white" } }}
+                fullWidth
+                onChange={(e) => {
+                  setError(null);
+                  setPassword(e.target.value);
+                }}
+              /> */}
+              <TextField
+                id="outlined-adornment-password"
+                type={showPassword ? "text" : "password"}
+                inputProps={{ style: { color: "white" } }}
+                fullWidth
+                onChange={(e) => {
+                  setError(null);
+                  setPassword(e.target.value);
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleClickShowPassword}>
+                        {showPassword ? (
+                          <VisibilityOff style={{ color: "white" }} />
+                        ) : (
+                          <Visibility style={{ color: "white" }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                label="Password"
+              />
+              <PasswordStrengthBar
+                password={password}
+                style={{
+                  width: "100%",
+                  alignContent: "center",
+                }}
+                onChangeScore={(score) => {
+                  setPasswordStrength(score);
+                }}
+              />
+              <TextField
+                id="password"
+                label="Verify Password"
+                type="password"
+                inputProps={{ style: { color: "white" } }}
+                fullWidth
+                onChange={(e) => {
+                  setError(null);
+                  setPasswordCheck(e.target.value);
+                }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                onClick={handleSubmit}
+              >
+                Signup
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            </Box>
+          </Box>
+        </>
+      )}
     </>
   );
 }
