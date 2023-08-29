@@ -283,6 +283,32 @@ func getLikesBySongID(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func checkUsernameAvailability(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		username := c.Query("username")
+		var result string
+		query := "SELECT username FROM users WHERE username = $1"
+		err = conn.QueryRow(context.Background(), query, username).Scan(&result)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"result":  true,
+				"message": "Username is available!",
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"result":  false,
+				"message": "Username is not available!",
+			})
+		}
+	}
+}
+
 func main() {
 	// Load .env Variables
 	err := godotenv.Load()
@@ -306,6 +332,7 @@ func main() {
 	router.GET("/homepage/songs", getHomePageSongs(pool))
 	router.GET("/users/:id", getUserByID(pool))
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
+	router.GET("/check-username", checkUsernameAvailability(pool))
 
 	// Run it
 	err = router.Run("0.0.0.0:8080")
