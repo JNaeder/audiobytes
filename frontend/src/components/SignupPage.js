@@ -9,9 +9,11 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { setCurrentUser } from "../slices/userSlice";
 import axios from "axios";
 import PasswordStrengthBar from "react-password-strength-bar";
@@ -29,6 +31,9 @@ function SignupPage() {
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+  let timeout;
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -81,6 +86,26 @@ function SignupPage() {
       }, 2000);
     }
   };
+
+  const checkUsernameAvailability = async (newUsername) => {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_ENDPOINT}/check-username?username=${newUsername}`
+    );
+    setUsernameAvailable(response.data.result);
+  };
+
+  const onUsernameChange = (e) => {
+    setUsername(e.target.value);
+    clearTimeout(timeout);
+  };
+
+  useEffect(() => {
+    if (username) {
+      timeout = setTimeout(async () => {
+        await checkUsernameAvailability(username);
+      }, 2000);
+    }
+  }, [username]);
 
   return (
     <>
@@ -143,7 +168,21 @@ function SignupPage() {
                 fullWidth
                 onChange={(e) => {
                   setError(null);
-                  setUsername(e.target.value);
+                  onUsernameChange(e);
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {usernameAvailable ? (
+                        <CheckCircleOutlineOutlinedIcon
+                          color="success"
+                          fontSize="large"
+                        />
+                      ) : (
+                        <CancelOutlinedIcon color="error" fontSize="large" />
+                      )}
+                    </InputAdornment>
+                  ),
                 }}
               />
               <TextField
@@ -157,17 +196,6 @@ function SignupPage() {
                   setEmail(e.target.value);
                 }}
               />
-              {/* <TextField
-                id="password"
-                label="Password"
-                type="password"
-                inputProps={{ style: { color: "white" } }}
-                fullWidth
-                onChange={(e) => {
-                  setError(null);
-                  setPassword(e.target.value);
-                }}
-              /> */}
               <TextField
                 id="outlined-adornment-password"
                 type={showPassword ? "text" : "password"}
