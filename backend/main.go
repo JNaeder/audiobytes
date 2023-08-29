@@ -140,6 +140,16 @@ func loginUser(pool *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
+		currentTime := time.Now().UTC()
+		successQuery := "UPDATE users SET last_login=$1 WHERE user_id=$2"
+		_, err = conn.Exec(context.Background(), successQuery, currentTime, user.UserID)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "Could not update user last login time",
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, user)
 	}
 }
