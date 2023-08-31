@@ -355,7 +355,8 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 			"client_secret": {clientSecret},
 			"grant_type":    {"authorization_code"},
 			"code":          {authCode},
-			"redirect_uri":  {"http://localhost:3000/auth"},
+			//"redirect_uri":  {"http://localhost:3000/auth"},
+			"redirect_uri": {"https://audiobytes.app/auth"},
 		}
 
 		req, err := http.NewRequest("POST", theUrl, strings.NewReader(payload.Encode()))
