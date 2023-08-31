@@ -425,6 +425,16 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 				"profilePic": newUser.PicURL,
 			})
 		} else {
+			currentTime := time.Now().UTC()
+			successQuery := "UPDATE users SET last_login=$1 WHERE user_id=$2"
+			_, err = conn.Exec(context.Background(), successQuery, currentTime, user.UserID)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "Could not update user last login time",
+				})
+				return
+			}
+
 			fmt.Println("User exists")
 			c.JSON(http.StatusOK, gin.H{
 				"userId":     user.UserID,

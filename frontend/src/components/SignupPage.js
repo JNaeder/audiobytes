@@ -143,7 +143,7 @@ function SignupPage() {
               >
                 Signup
               </Button>
-              <SignupWithDiscord />
+              <SignupWithDiscord buttonTitle={"Signup With Discord"} />
               <Button
                 variant="outlined"
                 color="primary"
