@@ -387,7 +387,7 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 
 		resp, err = client.Do(req)
 		if err != nil {
-			// Handle the error
+			fmt.Println("Error sending request:", err)
 			return
 		}
 		defer resp.Body.Close()
@@ -395,9 +395,10 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 		var response DiscordUser
 		err = json.NewDecoder(resp.Body).Decode(&response)
 		if err != nil {
-			// Handle the error
+			fmt.Println("Error decoding response:", err)
 			return
 		}
+		fmt.Println("Response from Discord", response)
 
 		// Check if user exists
 		var user User
