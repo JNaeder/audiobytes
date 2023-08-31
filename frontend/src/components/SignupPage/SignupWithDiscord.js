@@ -11,6 +11,8 @@ function SignupWithDiscord({ buttonTitle }) {
       scope: "identify",
     });
     const url = `https://discord.com/api/oauth2/authorize?${params}`;
+    console.log("Auth Page!");
+    console.log("url", url);
     window.location.href = url;
   };
   return (
