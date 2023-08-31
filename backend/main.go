@@ -376,6 +376,8 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
+		fmt.Println("First Response from Discord", discordResponse)
+
 		userUrl := "https://discord.com/api/v10/users/@me"
 
 		req, err = http.NewRequest("GET", userUrl, nil)
