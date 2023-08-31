@@ -29,7 +29,7 @@ function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route exact path="/" element={<HomePage />} />
             <Route path="/mymusic" element={<MyMusic />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/about" element={<AboutPage />} />
