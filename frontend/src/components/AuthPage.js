@@ -17,6 +17,7 @@ function AuthPage() {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/discordtoken/${code}`
       );
+      console.log("response", response);
       dispatch(setCurrentUser(response.data));
       navigate("/");
     };
