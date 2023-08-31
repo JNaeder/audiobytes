@@ -1,16 +1,21 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -355,9 +360,10 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 			"client_secret": {clientSecret},
 			"grant_type":    {"authorization_code"},
 			"code":          {authCode},
-			//"redirect_uri":  {"http://localhost:3000/auth"},
-			"redirect_uri": {"https://audiobytes.app/auth"},
+			"redirect_uri":  {"http://localhost:3000/auth"},
+			//"redirect_uri": {"https://audiobytes.app/auth"},
 		}
+		fmt.Println("Payload", payload.Encode())
 
 		req, err := http.NewRequest("POST", theUrl, strings.NewReader(payload.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -451,6 +457,77 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func uploadFileToS3(fileKey string, fileContent []byte) (string, error) {
+	// Create a new AWS session
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1"), // e.g., "us-east-1"
+	})
+	if err != nil {
+		fmt.Println("Error creating session:", err)
+	}
+
+	// Create an S3 client
+	svc := s3.New(sess)
+
+	// Specify the bucket and object key
+	bucket := "audiobytes/songs"
+	objectKey := fileKey
+
+	// Upload the file content to S3
+	_, err = svc.PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(objectKey),
+		Body:   bytes.NewReader(fileContent),
+	})
+	if err != nil {
+		fmt.Println("Error uploading to S3:", err)
+	}
+
+	// Generate the S3 object URL
+	objectURL := "https://" + bucket + ".s3.amazonaws.com/" + objectKey
+	fmt.Println("AWS Object:", objectURL)
+	return objectURL, nil
+}
+
+func uploadSong(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		songFile, err := c.FormFile("songFile")
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		songFileOpen, err := songFile.Open()
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		defer songFileOpen.Close()
+
+		songFileContent, err := io.ReadAll(songFileOpen)
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		//artFile, err := c.FormFile("artFile")
+		//if err != nil {
+		//	fmt.Println("Error with file:", err)
+		//	return
+		//}
+		//title := c.PostForm("songName")
+		//userId := c.PostForm("userId")
+
+		songFileUrl, err := uploadFileToS3(songFile.Filename, songFileContent)
+		fmt.Println("Song File URL:", songFileUrl)
+
+	}
+}
+
 func main() {
 	// Load .env Variables
 	err := godotenv.Load()
@@ -476,6 +553,7 @@ func main() {
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 	router.GET("/check-username", checkUsernameAvailability(pool))
 	router.GET("/discordtoken/:code", getDiscordToken(pool))
+	router.POST("/upload", uploadSong(pool))
 
 	// Run it
 	err = router.Run("0.0.0.0:8080")
