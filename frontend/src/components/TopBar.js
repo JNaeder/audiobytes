@@ -13,6 +13,11 @@ function TopBar() {
   const dispatch = useDispatch();
   const { username, profilePic } = useSelector((state) => state.user);
 
+  let img_url = null;
+  if (profilePic !== null) {
+    img_url = profilePic.String;
+  }
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -80,7 +85,7 @@ function TopBar() {
                 <Typography variant="h6">{username}</Typography>
                 <Avatar
                   alt="profilePic"
-                  src={profilePic}
+                  src={img_url}
                   sx={{
                     height: "38px",
                     width: "38px",

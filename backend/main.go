@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -58,6 +61,20 @@ type RegisterUserRequest struct {
 type LoginUserRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type DiscordResponse struct {
+	AccessToken  string `json:"access_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+}
+
+type DiscordUser struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
 }
 
 func getDBPool() *pgxpool.Pool {
@@ -319,6 +336,107 @@ func checkUsernameAvailability(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		authCode := c.Param("code")
+		theUrl := "https://discord.com/api/oauth2/token"
+
+		clientID := os.Getenv("DISCORD_ID")
+		clientSecret := os.Getenv("DISCORD_SECRET")
+
+		payload := url.Values{
+			"client_id":     {clientID},
+			"client_secret": {clientSecret},
+			"grant_type":    {"authorization_code"},
+			"code":          {authCode},
+			"redirect_uri":  {"http://localhost:3000/auth"},
+		}
+
+		req, err := http.NewRequest("POST", theUrl, strings.NewReader(payload.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("Error sending request:", err)
+			return
+		}
+		defer resp.Body.Close()
+
+		var discordResponse DiscordResponse
+		if err := json.NewDecoder(resp.Body).Decode(&discordResponse); err != nil {
+			log.Fatal("Error decoding response:", err)
+			return
+		}
+
+		userUrl := "https://discord.com/api/v10/users/@me"
+
+		req, err = http.NewRequest("GET", userUrl, nil)
+		if err != nil {
+			log.Fatal("Error with GET request")
+			return
+		}
+		req.Header.Set("Authorization", "Bearer "+discordResponse.AccessToken)
+
+		resp, err = client.Do(req)
+		if err != nil {
+			// Handle the error
+			return
+		}
+		defer resp.Body.Close()
+
+		var response DiscordUser
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		if err != nil {
+			// Handle the error
+			return
+		}
+
+		// Check if user exists
+		var user User
+		query := "SELECT user_id, username, pic_url	 FROM users WHERE username = $1"
+		err = conn.QueryRow(context.Background(), query, response.Username).Scan(&user.UserID, &user.Username, &user.PicURL)
+		if err != nil {
+			fmt.Println("User does not exist")
+			fmt.Println(err)
+			var imgURL string
+			if response.Avatar == "" {
+				imgURL = "https://cdn.discordapp.com/embed/avatars/4.png"
+			} else {
+				imgURL = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", response.Id, response.Avatar)
+			}
+
+			var newUser User
+			query = "INSERT INTO users (username, pic_url) VALUES ($1, $2) RETURNING user_id, pic_url"
+			err = conn.QueryRow(context.Background(), query, response.Username, imgURL).Scan(&newUser.UserID, &newUser.PicURL)
+			if err != nil {
+				log.Fatal("Could not complete query: ", err)
+			}
+
+			c.JSON(http.StatusCreated, gin.H{
+				"userId":     newUser.UserID,
+				"username":   response.Username,
+				"profilePic": newUser.PicURL,
+			})
+		} else {
+			fmt.Println("User exists")
+			c.JSON(http.StatusOK, gin.H{
+				"userId":     user.UserID,
+				"username":   user.Username,
+				"profilePic": user.PicURL,
+			})
+			return
+		}
+
+	}
+}
+
 func main() {
 	// Load .env Variables
 	err := godotenv.Load()
@@ -343,6 +461,7 @@ func main() {
 	router.GET("/users/:id", getUserByID(pool))
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 	router.GET("/check-username", checkUsernameAvailability(pool))
+	router.GET("/discordtoken/:code", getDiscordToken(pool))
 
 	// Run it
 	err = router.Run("0.0.0.0:8080")
