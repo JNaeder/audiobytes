@@ -13,6 +13,7 @@ export const userSlice = createSlice({
       state.username = action.payload.username;
       state.email = action.payload.email;
       state.userId = action.payload.userId;
+      state.profilePic = action.payload.profilePic;
     },
 
     logout(state) {

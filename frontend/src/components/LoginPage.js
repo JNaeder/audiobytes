@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "../slices/userSlice";
 import axios from "axios";
+import SignupWithDiscord from "./SignupPage/SignupWithDiscord";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -140,6 +141,7 @@ function LoginPage() {
             >
               Login
             </Button>
+            <SignupWithDiscord buttonTitle={"Login With Discord"} />
             <Button
               variant="outlined"
               color="primary"

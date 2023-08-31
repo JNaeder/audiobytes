@@ -1,19 +1,28 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
-import { setCurrentUser } from "../slices/userSlice";
+import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setCurrentUser } from "../slices/userSlice";
 
 function AuthPage() {
-  const navigate = useNavigate();
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get("code");
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useAuth0();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(setCurrentUser(user));
+    const getToken = async () => {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_ENDPOINT}/discordtoken/${code}`
+      );
+      dispatch(setCurrentUser(response.data));
       navigate("/");
+    };
+    if (code) {
+      getToken();
     }
-  }, [user, isAuthenticated, dispatch, navigate]);
+  }, [code, dispatch, navigate]);
+
   return <></>;
 }
 

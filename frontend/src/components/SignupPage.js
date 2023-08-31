@@ -8,6 +8,7 @@ import SignupUsername from "./SignupPage/SignupUsername";
 import SignupEmail from "./SignupPage/SignupEmail";
 import SignupPassword from "./SignupPage/SignupPassword";
 import SignupPasswordVerify from "./SignupPage/SignupPasswordVerify";
+import SignupWithDiscord from "./SignupPage/SignupWithDiscord";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -142,6 +143,7 @@ function SignupPage() {
               >
                 Signup
               </Button>
+              <SignupWithDiscord buttonTitle={"Signup With Discord"} />
               <Button
                 variant="outlined"
                 color="primary"
