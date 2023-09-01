@@ -1,4 +1,4 @@
-import { Button, Typography } from "@mui/material";
+import { Button, Typography, Icon } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 function NavBarButton({ icon, text, path }) {
@@ -7,7 +7,8 @@ function NavBarButton({ icon, text, path }) {
     <>
       <Button
         variant="contained"
-        startIcon={icon ? <img src={icon} height="20px" alt="Menu Icon" /> : ""}
+        // startIcon={icon ? <img src={icon} height="20px" alt="Menu Icon" /> : ""}
+        startIcon={icon}
         sx={{
           backgroundColor: "background.darkest",
         }}
@@ -15,7 +16,7 @@ function NavBarButton({ icon, text, path }) {
           navigate(path);
         }}
       >
-        <Typography>{text}</Typography>
+        {text && <Typography>{text}</Typography>}
       </Button>
     </>
   );

@@ -1,10 +1,13 @@
 import Box from "@mui/material/Box";
+import { useSelector } from "react-redux";
 import NavBarButton from "./NavBarButton";
-import homeIcon from "../imgs/icons/home.png";
-import musicIcon from "../imgs/icons/wave-sound.png";
-import uploadIcon from "../imgs/icons/cloud-computing.png";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 
 function NavBar() {
+  const currentUser = useSelector((state) => state.user.username);
   return (
     <>
       <Box
@@ -27,11 +30,25 @@ function NavBar() {
             alignItems: "center",
           }}
         >
-          <NavBarButton icon={homeIcon} text={"Home"} path={"/"} />
-          <NavBarButton icon={musicIcon} text={"My Music"} path={"/mymusic"} />
-          <NavBarButton icon={uploadIcon} text={"Upload"} path={"/upload"} />
-          <NavBarButton icon={null} text={"About"} path={"/about"} />
-          <NavBarButton icon={null} text={"Visualizer"} path={"/visualizer"} />
+          <NavBarButton icon={<HomeOutlinedIcon />} text={"Home"} path={"/"} />
+          {/* <NavBarButton icon={musicIcon} text={"My Music"} path={"/mymusic"} /> */}
+          {currentUser && (
+            <NavBarButton
+              icon={<CloudUploadOutlinedIcon />}
+              text={"Upload"}
+              path={"/upload"}
+            />
+          )}
+          <NavBarButton
+            icon={<RemoveRedEyeOutlinedIcon />}
+            text={"Artwork"}
+            path={"/visualizer"}
+          />
+          <NavBarButton
+            icon={<InfoOutlinedIcon />}
+            text={"Info"}
+            path={"/about"}
+          />
         </Box>
       </Box>
     </>

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-contrib/cors"
@@ -54,7 +55,7 @@ type HomePageSong struct {
 	DateUploaded time.Time      `json:"dateUploaded"`
 	ArtURL       sql.NullString `json:"artURL"`
 	Username     string         `json:"username"`
-	PicURL       string         `json:"picURL"`
+	PicURL       sql.NullString `json:"picURL"`
 }
 
 type RegisterUserRequest struct {
@@ -120,7 +121,7 @@ func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, gin.H{
-			"userID":   userId,
+			"userId":   userId,
 			"username": reqUser.Username,
 			"email":    reqUser.Email,
 		})
@@ -260,7 +261,7 @@ func getHomePageSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 			err := rows.Scan(&newSong.SongID, &newSong.Likes, &newSong.UserID, &newSong.Name, &newSong.StorageURL,
 				&newSong.DateUploaded, &newSong.ArtURL, &newSong.Username, &newSong.PicURL)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("Error With Homepage Songs", err)
 			}
 
 			allSongs = append(allSongs, newSong)
@@ -457,36 +458,39 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
-func uploadFileToS3(fileKey string, fileContent []byte) (string, error) {
-	// Create a new AWS session
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"), // e.g., "us-east-1"
+func uploadFileToSpaces(fileKey string, fileContent []byte) (string, error) {
+
+	spacesKey := os.Getenv("SPACES_KEY")
+	spacesSecret := os.Getenv("SPACES_SECRET")
+	safeFileKey := url.QueryEscape(fileKey)
+	region := "nyc3"
+	bucketName := "audiobytes"
+
+	// Initialize DigitalOcean Spaces client
+	config := aws.NewConfig().
+		WithEndpoint("https://nyc3.digitaloceanspaces.com").
+		WithRegion(region).
+		WithCredentials(credentials.NewStaticCredentials(spacesKey, spacesSecret, ""))
+	svc := s3.New(session.New(), config)
+
+	// Upload the file to your Space
+	_, err := svc.PutObject(&s3.PutObjectInput{
+		Bucket:        aws.String(bucketName),
+		Key:           aws.String(safeFileKey),
+		Body:          bytes.NewReader(fileContent),
+		ContentLength: aws.Int64(int64(len(fileContent))),
+		ContentType:   aws.String("application/octet-stream"),
+		ACL:           aws.String("public-read"),
 	})
+
 	if err != nil {
-		fmt.Println("Error creating session:", err)
+		fmt.Println("Error uploading file:", err)
 	}
 
-	// Create an S3 client
-	svc := s3.New(sess)
+	// Construct the URL
+	fileURL := fmt.Sprintf("https://%s.%s.digitaloceanspaces.com/%s", bucketName, region, safeFileKey)
 
-	// Specify the bucket and object key
-	bucket := "audiobytes/songs"
-	objectKey := fileKey
-
-	// Upload the file content to S3
-	_, err = svc.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(objectKey),
-		Body:   bytes.NewReader(fileContent),
-	})
-	if err != nil {
-		fmt.Println("Error uploading to S3:", err)
-	}
-
-	// Generate the S3 object URL
-	objectURL := "https://" + bucket + ".s3.amazonaws.com/" + objectKey
-	fmt.Println("AWS Object:", objectURL)
-	return objectURL, nil
+	return fileURL, nil
 }
 
 func uploadSong(pool *pgxpool.Pool) gin.HandlerFunc {
@@ -497,6 +501,7 @@ func uploadSong(pool *pgxpool.Pool) gin.HandlerFunc {
 		}
 		defer conn.Release()
 
+		// Get song File
 		songFile, err := c.FormFile("songFile")
 		if err != nil {
 			fmt.Println("Error with file:", err)
@@ -508,23 +513,44 @@ func uploadSong(pool *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 		defer songFileOpen.Close()
-
 		songFileContent, err := io.ReadAll(songFileOpen)
 		if err != nil {
 			fmt.Println("Error with file:", err)
 			return
 		}
-		//artFile, err := c.FormFile("artFile")
-		//if err != nil {
-		//	fmt.Println("Error with file:", err)
-		//	return
-		//}
-		//title := c.PostForm("songName")
-		//userId := c.PostForm("userId")
 
-		songFileUrl, err := uploadFileToS3(songFile.Filename, songFileContent)
-		fmt.Println("Song File URL:", songFileUrl)
+		// Get art File
+		artFile, err := c.FormFile("artFile")
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		artFileOpen, err := artFile.Open()
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		defer artFileOpen.Close()
+		artFileContent, err := io.ReadAll(artFileOpen)
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
 
+		songFileUrl, err := uploadFileToSpaces(songFile.Filename, songFileContent)
+		artFileUrl, err := uploadFileToSpaces(artFile.Filename, artFileContent)
+		userId := c.PostForm("userId")
+		songName := c.PostForm("songName")
+
+		// Upload to DB
+		query := "INSERT INTO songs (user_id, name, storage_url, art_url) VALUES ($1, $2, $3, $4)"
+		_, err = conn.Exec(context.Background(), query, userId, songName, songFileUrl, artFileUrl)
+		if err != nil {
+			fmt.Println("Error uploading to DB:", err)
+			c.Status(http.StatusInternalServerError)
+		}
+
+		c.Status(http.StatusCreated)
 	}
 }
 

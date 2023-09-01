@@ -4,6 +4,11 @@ function SongBoxUserInfo({ song }) {
   const dateUloaded = new Date(song.dateUploaded).toLocaleString("en-US", {
     timeZone: "America/New_York",
   });
+
+  let imgUrl = null;
+  if (song.picURL) {
+    imgUrl = song.picURL.String;
+  }
   return (
     <>
       <Box
@@ -17,7 +22,7 @@ function SongBoxUserInfo({ song }) {
         }}
       >
         <Avatar
-          src={song.picURL}
+          src={imgUrl}
           sx={{
             border: "2px solid #7798AB",
             width: "30px",
