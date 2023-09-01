@@ -1,4 +1,11 @@
-import { Box, Typography, TextField, Button, InputLabel } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  InputLabel,
+  CircularProgress,
+} from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -7,6 +14,7 @@ function UploadPrompt({ setSongUploaded }) {
   const [songName, setSongName] = useState("");
   const [songFile, setSongFile] = useState("");
   const [artFile, setArtFile] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const user = useSelector((state) => state.user);
@@ -28,9 +36,11 @@ function UploadPrompt({ setSongUploaded }) {
   };
 
   const submitSong = async () => {
+    console.log("Try to upload song");
     if (!validateForm()) {
       return;
     }
+    setLoading(true);
     const formData = new FormData();
     formData.append("songName", songName);
     formData.append("songFile", songFile);
@@ -93,6 +103,7 @@ function UploadPrompt({ setSongUploaded }) {
               inputProps={{ style: { color: "white" } }}
               fullWidth
               onChange={(e) => {
+                setError(null);
                 setSongName(e.target.value);
               }}
             />
@@ -106,9 +117,11 @@ function UploadPrompt({ setSongUploaded }) {
             <TextField
               id="song-file"
               type="file"
+              accept=".pdf,.doc,.docx"
               inputProps={{ style: { color: "white" } }}
               fullWidth
               onChange={(e) => {
+                setError(null);
                 setSongFile(e.target.files[0]);
               }}
             />
@@ -122,21 +135,27 @@ function UploadPrompt({ setSongUploaded }) {
             <TextField
               id="art-file"
               type="file"
+              accept=".pdf,.doc,.docx"
               inputProps={{ style: { color: "white" } }}
               fullWidth
               onChange={(e) => {
+                setError(null);
                 setArtFile(e.target.files[0]);
               }}
             />
           </Box>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={submitSong}
-          >
-            Upload
-          </Button>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={submitSong}
+            >
+              Upload
+            </Button>
+          )}
         </Box>
       </Box>
     </>

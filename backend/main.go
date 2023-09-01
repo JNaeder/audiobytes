@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -462,7 +463,9 @@ func uploadFileToSpaces(fileKey string, fileContent []byte) (string, error) {
 
 	spacesKey := os.Getenv("SPACES_KEY")
 	spacesSecret := os.Getenv("SPACES_SECRET")
-	safeFileKey := url.QueryEscape(fileKey)
+	fileExt := filepath.Ext(fileKey)
+	newUUID := uuid.New()
+	safeFileKey := newUUID.String() + fileExt
 	region := "nyc3"
 	bucketName := "audiobytes"
 
