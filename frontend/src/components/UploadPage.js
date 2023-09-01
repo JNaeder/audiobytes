@@ -1,8 +1,18 @@
+import { useState } from "react";
+import UploadPrompt from "./UploadPage/UploadPrompt";
+import UploadSuccess from "./UploadPage/UploadSuccess";
+
 function UploadPage() {
+  const [songUploaded, setSongUploaded] = useState(false);
+
   return (
-    <div>
-      <h1>Upload Page</h1>
-    </div>
+    <>
+      {songUploaded ? (
+        <UploadSuccess />
+      ) : (
+        <UploadPrompt setSongUploaded={setSongUploaded} />
+      )}
+    </>
   );
 }
 

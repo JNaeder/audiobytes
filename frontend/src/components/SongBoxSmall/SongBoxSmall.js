@@ -28,7 +28,6 @@ function SongBoxSmall({ song }) {
             sx={{
               display: "flex",
               flexDirection: "column",
-              // backgroundColor: "primary.main",
               alignContent: "center",
               justifyContent: "center",
               width: "70%",

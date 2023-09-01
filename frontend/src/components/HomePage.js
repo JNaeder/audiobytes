@@ -13,6 +13,7 @@ function HomePage() {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/homepage/songs`
       );
+      // console.log(response.data);
       setAllSongs(response.data);
     };
 
@@ -36,9 +37,11 @@ function HomePage() {
             padding: "20px",
           }}
         >
-          {allSongs.map((song, i) => {
-            return <SongBoxSmall key={i} song={song} />;
-          })}
+          {allSongs
+            ? allSongs.map((song, i) => {
+                return <SongBoxSmall key={i} song={song} />;
+              })
+            : ""}
         </Grid>
       </Box>
     </>

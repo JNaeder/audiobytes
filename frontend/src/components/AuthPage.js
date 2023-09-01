@@ -9,15 +9,13 @@ function AuthPage() {
   const code = url.searchParams.get("code");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log("Auth Page!");
-  console.log("url", url);
 
   useEffect(() => {
     const getToken = async () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/discordtoken/${code}`
       );
-      console.log("response", response);
+
       dispatch(setCurrentUser(response.data));
       navigate("/");
     };

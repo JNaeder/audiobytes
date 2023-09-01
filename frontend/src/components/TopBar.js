@@ -14,7 +14,7 @@ function TopBar() {
   const { username, profilePic } = useSelector((state) => state.user);
 
   let img_url = null;
-  if (profilePic !== null) {
+  if (profilePic) {
     img_url = profilePic.String;
   }
 

@@ -1,20 +1,27 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -49,7 +56,7 @@ type HomePageSong struct {
 	DateUploaded time.Time      `json:"dateUploaded"`
 	ArtURL       sql.NullString `json:"artURL"`
 	Username     string         `json:"username"`
-	PicURL       string         `json:"picURL"`
+	PicURL       sql.NullString `json:"picURL"`
 }
 
 type RegisterUserRequest struct {
@@ -115,7 +122,7 @@ func registerUser(pool *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, gin.H{
-			"userID":   userId,
+			"userId":   userId,
 			"username": reqUser.Username,
 			"email":    reqUser.Email,
 		})
@@ -255,7 +262,7 @@ func getHomePageSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 			err := rows.Scan(&newSong.SongID, &newSong.Likes, &newSong.UserID, &newSong.Name, &newSong.StorageURL,
 				&newSong.DateUploaded, &newSong.ArtURL, &newSong.Username, &newSong.PicURL)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("Error With Homepage Songs", err)
 			}
 
 			allSongs = append(allSongs, newSong)
@@ -355,9 +362,10 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 			"client_secret": {clientSecret},
 			"grant_type":    {"authorization_code"},
 			"code":          {authCode},
-			//"redirect_uri":  {"http://localhost:3000/auth"},
-			"redirect_uri": {"https://audiobytes.app/auth"},
+			"redirect_uri":  {"http://localhost:3000/auth"},
+			//"redirect_uri": {"https://audiobytes.app/auth"},
 		}
+		fmt.Println("Payload", payload.Encode())
 
 		req, err := http.NewRequest("POST", theUrl, strings.NewReader(payload.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -451,6 +459,104 @@ func getDiscordToken(pool *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func uploadFileToSpaces(fileKey string, fileContent []byte) (string, error) {
+
+	spacesKey := os.Getenv("SPACES_KEY")
+	spacesSecret := os.Getenv("SPACES_SECRET")
+	fileExt := filepath.Ext(fileKey)
+	newUUID := uuid.New()
+	safeFileKey := newUUID.String() + fileExt
+	region := "nyc3"
+	bucketName := "audiobytes"
+
+	// Initialize DigitalOcean Spaces client
+	config := aws.NewConfig().
+		WithEndpoint("https://nyc3.digitaloceanspaces.com").
+		WithRegion(region).
+		WithCredentials(credentials.NewStaticCredentials(spacesKey, spacesSecret, ""))
+	svc := s3.New(session.New(), config)
+
+	// Upload the file to your Space
+	_, err := svc.PutObject(&s3.PutObjectInput{
+		Bucket:        aws.String(bucketName),
+		Key:           aws.String(safeFileKey),
+		Body:          bytes.NewReader(fileContent),
+		ContentLength: aws.Int64(int64(len(fileContent))),
+		ContentType:   aws.String("application/octet-stream"),
+		ACL:           aws.String("public-read"),
+	})
+
+	if err != nil {
+		fmt.Println("Error uploading file:", err)
+	}
+
+	// Construct the URL
+	fileURL := fmt.Sprintf("https://%s.%s.digitaloceanspaces.com/%s", bucketName, region, safeFileKey)
+
+	return fileURL, nil
+}
+
+func uploadSong(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		// Get song File
+		songFile, err := c.FormFile("songFile")
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		songFileOpen, err := songFile.Open()
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		defer songFileOpen.Close()
+		songFileContent, err := io.ReadAll(songFileOpen)
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+
+		// Get art File
+		artFile, err := c.FormFile("artFile")
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		artFileOpen, err := artFile.Open()
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+		defer artFileOpen.Close()
+		artFileContent, err := io.ReadAll(artFileOpen)
+		if err != nil {
+			fmt.Println("Error with file:", err)
+			return
+		}
+
+		songFileUrl, err := uploadFileToSpaces(songFile.Filename, songFileContent)
+		artFileUrl, err := uploadFileToSpaces(artFile.Filename, artFileContent)
+		userId := c.PostForm("userId")
+		songName := c.PostForm("songName")
+
+		// Upload to DB
+		query := "INSERT INTO songs (user_id, name, storage_url, art_url) VALUES ($1, $2, $3, $4)"
+		_, err = conn.Exec(context.Background(), query, userId, songName, songFileUrl, artFileUrl)
+		if err != nil {
+			fmt.Println("Error uploading to DB:", err)
+			c.Status(http.StatusInternalServerError)
+		}
+
+		c.Status(http.StatusCreated)
+	}
+}
+
 func main() {
 	// Load .env Variables
 	err := godotenv.Load()
@@ -476,6 +582,7 @@ func main() {
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 	router.GET("/check-username", checkUsernameAvailability(pool))
 	router.GET("/discordtoken/:code", getDiscordToken(pool))
+	router.POST("/upload", uploadSong(pool))
 
 	// Run it
 	err = router.Run("0.0.0.0:8080")
