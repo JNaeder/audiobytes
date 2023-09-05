@@ -1,4 +1,4 @@
-import { Box, Avatar, Typography } from "@mui/material";
+import { Box, Avatar, Typography, ButtonBase } from "@mui/material";
 
 function SongBoxUserInfo({ song }) {
   const dateUloaded = new Date(song.dateUploaded).toLocaleString("en-US", {
@@ -21,15 +21,17 @@ function SongBoxUserInfo({ song }) {
           gap: "10px",
         }}
       >
-        <Avatar
-          src={imgUrl}
-          sx={{
-            border: "2px solid #7798AB",
-            width: "30px",
-            height: "30px",
-          }}
-        />
-        <Typography variant="h6">{song.username}</Typography>
+        <ButtonBase>
+          <Avatar
+            src={imgUrl}
+            sx={{
+              // border: "2px solid #7798AB",
+              width: "35px",
+              height: "35px",
+            }}
+          />
+          <Typography variant="h6">{song.username}</Typography>
+        </ButtonBase>
         <Typography variant="subtitle2" sx={{ opacity: 0.5 }}>
           {dateUloaded}
         </Typography>

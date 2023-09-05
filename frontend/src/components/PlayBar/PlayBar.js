@@ -82,6 +82,11 @@ function PlayBar() {
     }
   }, [currentSong, dispatch]);
 
+  // useEffect(() => {
+  //   console.log("isPlaying", isPlaying);
+  //   // playSong();
+  // }, [isPlaying]);
+
   return (
     <>
       <audio ref={audioRef} onTimeUpdate={updateTime} onEnded={songEnded} />

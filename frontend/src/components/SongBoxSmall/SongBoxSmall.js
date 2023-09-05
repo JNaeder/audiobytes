@@ -1,17 +1,22 @@
-import { Card, CardContent } from "@mui/material";
-import { useDispatch } from "react-redux";
-import { setCurrentSong } from "../../slices/songSlice";
+import { Card, Box } from "@mui/material";
+import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import SongBoxSongArt from "./SongBoxArt";
 import SongBoxSongInfo from "./SongBoxSongInfo";
 import SongBoxUserInfo from "./SongBoxUserInfo";
 
 function SongBoxSmall({ song }) {
-  const dispatch = useDispatch();
+  const [border, setBorder] = useState("3px solid #242423");
+  const currentSong = useSelector((state) => state.song.currentSong);
 
-  const setSong = () => {
-    dispatch(setCurrentSong(song));
-  };
+  useEffect(() => {
+    if (currentSong && currentSong.songID === song.songID) {
+      setBorder("3px solid #7798AB");
+    } else {
+      setBorder("3px solid #242423");
+    }
+  }, [currentSong, song, setBorder]);
 
   return (
     <>
@@ -20,23 +25,38 @@ function SongBoxSmall({ song }) {
           sx={{
             backgroundColor: "background.darkest",
             display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
             height: "120px",
+            border: border,
           }}
         >
-          <SongBoxSongArt setSong={setSong} song={song} />
-          <CardContent
+          <SongBoxSongArt song={song} />
+          <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
-              alignContent: "center",
-              justifyContent: "center",
-              width: "70%",
-              padding: "5px 15px",
+              flexDirection: "row",
+              justifyContent: "start",
+              // backgroundColor: "red",
+              height: "100%",
+              width: "100%",
+              marginLeft: "20px",
             }}
           >
-            <SongBoxSongInfo song={song} />
-            <SongBoxUserInfo song={song} />
-          </CardContent>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignContent: "center",
+                justifyContent: "space-evenly",
+                // backgroundColor: "blue",
+              }}
+            >
+              <SongBoxSongInfo song={song} />
+              <SongBoxUserInfo song={song} />
+            </Box>
+          </Box>
         </Card>
       </Grid>
     </>
