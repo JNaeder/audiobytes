@@ -82,10 +82,13 @@ function PlayBar() {
     }
   }, [currentSong, dispatch]);
 
-  // useEffect(() => {
-  //   console.log("isPlaying", isPlaying);
-  //   // playSong();
-  // }, [isPlaying]);
+  useEffect(() => {
+    if (isPlaying) {
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying]);
 
   return (
     <>

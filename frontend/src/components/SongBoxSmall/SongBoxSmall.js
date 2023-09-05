@@ -26,36 +26,25 @@ function SongBoxSmall({ song }) {
             backgroundColor: "background.darkest",
             display: "flex",
             flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
+            justifyContent: "flex-start",
             height: "120px",
             border: border,
+            backgroundColor: "blue",
           }}
         >
           <SongBoxSongArt song={song} />
           <Box
             sx={{
               display: "flex",
-              flexDirection: "row",
-              justifyContent: "start",
-              // backgroundColor: "red",
-              height: "100%",
+              flexDirection: "column",
+              // alignContent: "center",
+              justifyContent: "space-evenly",
+              backgroundColor: "red",
               width: "100%",
-              marginLeft: "20px",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignContent: "center",
-                justifyContent: "space-evenly",
-                // backgroundColor: "blue",
-              }}
-            >
-              <SongBoxSongInfo song={song} />
-              <SongBoxUserInfo song={song} />
-            </Box>
+            <SongBoxSongInfo song={song} />
+            <SongBoxUserInfo song={song} />
           </Box>
         </Card>
       </Grid>
