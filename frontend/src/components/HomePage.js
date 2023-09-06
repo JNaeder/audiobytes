@@ -39,7 +39,7 @@ function HomePage() {
         >
           {allSongs
             ? allSongs.map((song, i) => {
-                return <SongBoxSmall key={i} song={song} />;
+                return <SongBoxSmall key={i} song={song} gridSize={6} />;
               })
             : ""}
         </Grid>

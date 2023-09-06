@@ -12,8 +12,9 @@ function SignupUsername({ setError, setUsername, username }) {
   let timeout = useRef(null);
 
   const onUsernameChange = (e) => {
-    setUsername(e.target.value.toLowerCase());
-    setUsernameLower(e.target.value.toLowerCase());
+    const newUsername = e.target.value.replace(/ /g, "_");
+    setUsername(newUsername.toLowerCase());
+    setUsernameLower(newUsername.toLowerCase());
     setCheckedUsername(false);
     clearTimeout(timeout.current);
   };

@@ -7,7 +7,13 @@ function SongBoxSongInfo({ song }) {
   const likes = song.likes;
   return (
     <>
-      <Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+        }}
+      >
         <Typography
           variant="subtitle1"
           sx={{

@@ -11,6 +11,7 @@ import Visualizer from "./components/Visualizer";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import AuthPage from "./components/AuthPage";
+import UserPage from "./components/UserPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/user/:username" element={<UserPage />} />
           </Routes>
         </Box>
         <PlayBar />
