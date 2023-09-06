@@ -35,6 +35,7 @@ function SongBoxUserInfo({ song, showUser }) {
                 // border: "2px solid #7798AB",
                 width: "35px",
                 height: "35px",
+                marginRight: "10px",
               }}
             />
             <Typography variant="h6">{song.username}</Typography>

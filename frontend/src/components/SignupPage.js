@@ -28,6 +28,10 @@ function SignupPage() {
       setError("Username cannot be empty");
       return;
     }
+    if (username.includes(" ")) {
+      setError("Username cannot contain spaces");
+      return;
+    }
     if (email === "") {
       setError("Email cannot be empty");
       return;

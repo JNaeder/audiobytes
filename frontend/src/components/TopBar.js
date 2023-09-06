@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
+import { Box, Typography, Avatar, Button, ButtonBase } from "@mui/material";
 import { logout } from "../slices/userSlice";
 
 import logo from "../imgs/Logo-1.svg";
@@ -82,16 +79,18 @@ function TopBar() {
           >
             {username ? (
               <>
-                <Typography variant="h6">{username}</Typography>
-                <Avatar
-                  alt="profilePic"
-                  src={img_url}
-                  sx={{
-                    height: "38px",
-                    width: "38px",
-                    border: "2px solid #7798AB",
-                  }}
-                />
+                <ButtonBase onClick={() => navigate(`/user/${username}`)}>
+                  <Typography variant="h6">{username}</Typography>
+                  <Avatar
+                    alt="profilePic"
+                    src={img_url}
+                    sx={{
+                      height: "38px",
+                      width: "38px",
+                      border: "2px solid #7798AB",
+                    }}
+                  />
+                </ButtonBase>
                 <Button variant="contained" onClick={handleLogout}>
                   Logout
                 </Button>

@@ -2,7 +2,6 @@ import { Box, Typography, Grid } from "@mui/material";
 import SongBoxSmall from "../SongBoxSmall/SongBoxSmall";
 
 function UserPageSongs({ userInfo }) {
-  console.log(userInfo.songs);
   return (
     <>
       <Box

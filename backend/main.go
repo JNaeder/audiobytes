@@ -376,6 +376,7 @@ func checkUsernameAvailability(pool *pgxpool.Pool) gin.HandlerFunc {
 		defer conn.Release()
 
 		username := c.Query("username")
+
 		var result string
 		query := "SELECT username FROM users WHERE username = $1"
 		err = conn.QueryRow(context.Background(), query, username).Scan(&result)

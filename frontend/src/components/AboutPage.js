@@ -1,59 +1,46 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
+import AboutPageInfo from "./AboutPage/AboutPageInfo";
+import AboutPageLinks from "./AboutPage/AboutPageLinks";
+import AboutPageChangelog from "./AboutPage/AboutPageChangelog";
+import AboutPageContact from "./AboutPage/AboutPageContact";
 
 function AboutPage() {
   return (
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
+          height: "100%",
+          width: "90%",
+          marginTop: "20px",
         }}
       >
-        <Typography variant="h4">audiobytes.app</Typography>
-        <Typography variant="h5">By John Naeder</Typography>
-        <br />
-        <br />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "start",
-            alignItems: "center",
-            color: "white",
-            backgroundColor: "background.dark",
-            width: "20%",
-            height: "70%",
-            borderRadius: "10px",
-            padding: "20px",
-          }}
-        >
-          <br />
-          <Typography variant="p">
-            This portfolio project is a work in progress.
-          </Typography>
-          <br />
-          <Typography variant="p">
-            So many buttons don't work yet, but I'm working on it. Get off my
-            case.
-          </Typography>
-          <br />
-          <Typography variant="p">
-            Right now you can create an account, either with username and
-            password or with Discord OAuth2. You can upload a song, and you can
-            listen to songs. You can't do much else.
-          </Typography>
-          <br />
-          <Typography variant="p">
-            Please give me feedback as I want to this to be a nice portfolio.
-          </Typography>
-          <br />
-          <Typography variant="p">
-            Email me:{" "}
-            <a href="mailto:j.naeder324@gmail.dom">J.Naeder324@gmail.com</a>
-          </Typography>
-        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "flex-end",
+              }}
+            >
+              <Typography variant="h4">audiobytes.app</Typography>
+              <Typography
+                variant="h6"
+                sx={{
+                  opacity: "0.5",
+                  marginLeft: "10px",
+                }}
+              >
+                By John Naeder
+              </Typography>
+            </Box>
+          </Grid>
+          <AboutPageInfo />
+          <AboutPageLinks />
+          <AboutPageContact />
+          <AboutPageChangelog />
+        </Grid>
       </Box>
     </>
   );
