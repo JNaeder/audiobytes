@@ -1,6 +1,8 @@
 import { Box, Avatar, Typography, ButtonBase } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-function SongBoxUserInfo({ song }) {
+function SongBoxUserInfo({ song, showUser }) {
+  const navigate = useNavigate();
   const dateUloaded = new Date(song.dateUploaded).toLocaleString("en-US", {
     timeZone: "America/New_York",
   });
@@ -21,17 +23,25 @@ function SongBoxUserInfo({ song }) {
           gap: "10px",
         }}
       >
-        <ButtonBase>
-          <Avatar
-            src={imgUrl}
-            sx={{
-              // border: "2px solid #7798AB",
-              width: "35px",
-              height: "35px",
+        {showUser ? (
+          <ButtonBase
+            onClick={() => {
+              navigate(`/user/${song.username}`);
             }}
-          />
-          <Typography variant="h6">{song.username}</Typography>
-        </ButtonBase>
+          >
+            <Avatar
+              src={imgUrl}
+              sx={{
+                // border: "2px solid #7798AB",
+                width: "35px",
+                height: "35px",
+              }}
+            />
+            <Typography variant="h6">{song.username}</Typography>
+          </ButtonBase>
+        ) : (
+          ""
+        )}
         <Typography variant="subtitle2" sx={{ opacity: 0.5 }}>
           {dateUloaded}
         </Typography>

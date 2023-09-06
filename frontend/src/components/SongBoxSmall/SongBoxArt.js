@@ -64,9 +64,6 @@ function SongBoxSongArt({ song }) {
         src={song.artURL.String}
         sx={{
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
           height: "100%",
           width: "120px",
         }}
@@ -88,6 +85,7 @@ function SongBoxSongArt({ song }) {
           <PauseCircleIcon
             sx={{
               fontSize: "60px",
+              width: "60px",
             }}
             color="primary"
           />
@@ -95,6 +93,7 @@ function SongBoxSongArt({ song }) {
           <PlayCircleIcon
             sx={{
               fontSize: "60px",
+              width: "60px",
             }}
             color="primary"
           />

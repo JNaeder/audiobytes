@@ -6,7 +6,7 @@ import SongBoxSongArt from "./SongBoxArt";
 import SongBoxSongInfo from "./SongBoxSongInfo";
 import SongBoxUserInfo from "./SongBoxUserInfo";
 
-function SongBoxSmall({ song }) {
+function SongBoxSmall({ song, gridSize, showUser = true }) {
   const [border, setBorder] = useState("3px solid #242423");
   const currentSong = useSelector((state) => state.song.currentSong);
 
@@ -20,16 +20,16 @@ function SongBoxSmall({ song }) {
 
   return (
     <>
-      <Grid item xs={6}>
+      <Grid item xs={gridSize}>
         <Card
           sx={{
             backgroundColor: "background.darkest",
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-start",
+            justifyContent: "center",
             height: "120px",
             border: border,
-            backgroundColor: "blue",
+            // backgroundColor: "blue",
           }}
         >
           <SongBoxSongArt song={song} />
@@ -39,12 +39,12 @@ function SongBoxSmall({ song }) {
               flexDirection: "column",
               // alignContent: "center",
               justifyContent: "space-evenly",
-              backgroundColor: "red",
+              // backgroundColor: "red",
               width: "100%",
             }}
           >
             <SongBoxSongInfo song={song} />
-            <SongBoxUserInfo song={song} />
+            <SongBoxUserInfo song={song} showUser={showUser} />
           </Box>
         </Card>
       </Grid>

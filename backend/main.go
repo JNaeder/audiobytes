@@ -29,18 +29,26 @@ import (
 type User struct {
 	UserID      uuid.UUID      `json:"userId"`
 	Username    string         `json:"username"`
-	Email       string         `json:"email"`
+	Email       sql.NullString `json:"email"`
 	PicURL      sql.NullString `json:"picURL"`
 	MemberSince time.Time      `json:"memberSince"`
 	LastLogin   time.Time      `json:"lastLogin"`
 	HashedPass  string         `json:"hashedPass"`
 }
 
+type UserPage struct {
+	UserID      uuid.UUID      `json:"userId"`
+	Username    string         `json:"username"`
+	PicURL      sql.NullString `json:"picURL"`
+	MemberSince time.Time      `json:"memberSince"`
+	LastLogin   time.Time      `json:"lastLogin"`
+	Songs       []HomePageSong `json:"songs"`
+}
+
 type Song struct {
 	SongID       uuid.UUID      `json:"songID"`
 	UserID       uuid.UUID      `json:"userID"`
 	Name         string         `json:"name"`
-	Length       time.Time      `json:"length"`
 	StorageURL   string         `json:"storageURL"`
 	Plays        int            `json:"plays"`
 	DateUploaded time.Time      `json:"dateUploaded"`
@@ -228,7 +236,7 @@ func getAllSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 		for rows.Next() {
 			var newSong Song
 			err := rows.Scan(&newSong.SongID, &newSong.UserID, &newSong.Name,
-				&newSong.Length, &newSong.StorageURL, &newSong.Plays,
+				&newSong.StorageURL, &newSong.Plays,
 				&newSong.DateUploaded, &newSong.ArtURL)
 			if err != nil {
 				log.Fatal(err)
@@ -269,6 +277,48 @@ func getHomePageSongs(pool *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, allSongs)
+	}
+}
+
+func getUserInfoByUsername(pool *pgxpool.Pool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		conn, err := pool.Acquire(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Release()
+
+		username := c.Param("username")
+
+		userQuery := "SELECT user_id, username, pic_url, member_since, last_login FROM users WHERE username = $1"
+		var user UserPage
+		err = conn.QueryRow(context.Background(), userQuery, username).Scan(&user.UserID, &user.Username, &user.PicURL, &user.MemberSince, &user.LastLogin)
+		if err != nil {
+			log.Println("Error with user query:", err)
+			return
+		}
+
+		songQuery := "SELECT * FROM home_page_songs WHERE user_id = $1"
+		rows, err := conn.Query(context.Background(), songQuery, user.UserID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Create an empty array to store songs
+		var userSongs []HomePageSong
+
+		// Iterate through the query results and create Song objects
+		for rows.Next() {
+			var song HomePageSong
+			err := rows.Scan(&song.SongID, &song.Likes, &song.UserID, &song.Name, &song.StorageURL, &song.DateUploaded, &song.ArtURL, &song.Username, &song.PicURL)
+			if err != nil {
+				log.Fatal(err)
+			}
+			userSongs = append(userSongs, song)
+		}
+		user.Songs = userSongs
+
+		c.JSON(http.StatusOK, user)
 	}
 }
 
@@ -579,6 +629,7 @@ func main() {
 	router.GET("/songs", getAllSongs(pool))
 	router.GET("/homepage/songs", getHomePageSongs(pool))
 	router.GET("/users/:id", getUserByID(pool))
+	router.GET("/userinfo/:username", getUserInfoByUsername(pool))
 	router.GET("/likes/song/:songid", getLikesBySongID(pool))
 	router.GET("/check-username", checkUsernameAvailability(pool))
 	router.GET("/discordtoken/:code", getDiscordToken(pool))
