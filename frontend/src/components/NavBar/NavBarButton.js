@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 function NavBarButton({ icon, text, path }) {
   const navigate = useNavigate();
+
   return (
     <>
       <Button

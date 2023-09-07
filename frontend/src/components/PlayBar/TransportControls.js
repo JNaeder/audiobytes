@@ -9,7 +9,7 @@ function TransportControls({ playSong, isPlaying }) {
       <Box
         sx={{
           height: "100%",
-          width: "20%",
+          // width: "20%",
           display: "flex",
           flexDirection: "row",
           alignItems: "center",

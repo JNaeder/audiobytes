@@ -15,7 +15,7 @@ function AboutPageLinks() {
             backgroundColor: "background.dark",
             borderRadius: "10px",
             padding: "10px",
-            height: "92%",
+            height: "90%",
           }}
         >
           <Typography variant="h5">Links</Typography>

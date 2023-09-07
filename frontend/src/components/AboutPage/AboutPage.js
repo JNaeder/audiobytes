@@ -1,8 +1,8 @@
 import { Box, Grid, Typography } from "@mui/material";
-import AboutPageInfo from "./AboutPage/AboutPageInfo";
-import AboutPageLinks from "./AboutPage/AboutPageLinks";
-import AboutPageChangelog from "./AboutPage/AboutPageChangelog";
-import AboutPageContact from "./AboutPage/AboutPageContact";
+import AboutPageInfo from "./AboutPageInfo";
+import AboutPageLinks from "./AboutPageLinks";
+import AboutPageChangelog from "./AboutPageChangelog";
+import AboutPageContact from "./AboutPageContact";
 
 function AboutPage() {
   return (

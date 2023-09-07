@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import SongBoxSmall from "../components/SongBoxSmall/SongBoxSmall";
+import SongBoxSmall from "./SongBox/SongBox";
 
 import axios from "axios";
 
@@ -28,9 +28,11 @@ function HomePage() {
           height: "90%",
           borderRadius: "10px",
           backgroundColor: "background.dark",
+          overflow: "auto",
         }}
       >
         <Grid
+          columns={{ xs: 6, sm: 6, md: 12 }}
           container
           spacing={4}
           sx={{

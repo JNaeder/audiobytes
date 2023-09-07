@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import { useSelector, useDispatch } from "react-redux";
+import { useMediaQuery, useTheme } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import SongInfoBox from "./SongInfoBox";
 import TransportControls from "./TransportControls";
@@ -17,6 +18,7 @@ const formatTime = (time) => {
 };
 
 function PlayBar() {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const audioRef = useRef(null);
 
@@ -27,6 +29,9 @@ function PlayBar() {
 
   const isPlaying = useSelector((state) => state.song.isPlaying);
   const currentSong = useSelector((state) => state.song.currentSong);
+
+  const isSm = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const playSong = () => {
     if (currentSong) {
@@ -101,18 +106,22 @@ function PlayBar() {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
         }}
       >
-        <SongInfoBox currentSong={currentSong} />
+        <SongInfoBox currentSong={currentSong} isSm={isSm} />
         <TransportControls playSong={playSong} isPlaying={isPlaying} />
-        <ProgressBar
-          changeTime={changeTime}
-          handleMouseUp={handleMouseUp}
-          currentTime={currentTime}
-          duration={duration}
-          songPercent={songPercent}
-        />
+        {!isMd ? (
+          <ProgressBar
+            changeTime={changeTime}
+            handleMouseUp={handleMouseUp}
+            currentTime={currentTime}
+            duration={duration}
+            songPercent={songPercent}
+          />
+        ) : (
+          <div></div>
+        )}
       </Box>
     </>
   );

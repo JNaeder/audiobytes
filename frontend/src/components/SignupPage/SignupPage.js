@@ -2,13 +2,13 @@ import { Box, Button, Typography, Alert } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { setCurrentUser } from "../slices/userSlice";
+import { setCurrentUser } from "../../slices/userSlice";
 import axios from "axios";
-import SignupUsername from "./SignupPage/SignupUsername";
-import SignupEmail from "./SignupPage/SignupEmail";
-import SignupPassword from "./SignupPage/SignupPassword";
-import SignupPasswordVerify from "./SignupPage/SignupPasswordVerify";
-import SignupWithDiscord from "./SignupPage/SignupWithDiscord";
+import SignupUsername from "./SignupUsername";
+import SignupEmail from "./SignupEmail";
+import SignupPassword from "./SignupPassword";
+import SignupPasswordVerify from "./SignupPasswordVerify";
+import SignupWithDiscord from "./SignupWithDiscord";
 
 function SignupPage() {
   const navigate = useNavigate();

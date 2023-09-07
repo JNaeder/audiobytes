@@ -2,8 +2,8 @@ import { Typography, Box } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import UserPageInfo from "./UserPage/UserPageInfo";
-import UserPageSongs from "./UserPage/UserPageSongs";
+import UserPageInfo from "./UserPageInfo";
+import UserPageSongs from "./UserPageSongs";
 
 function UserPage() {
   const { username } = useParams();

@@ -14,6 +14,7 @@ function AboutPageInfo() {
             backgroundColor: "background.dark",
             borderRadius: "10px",
             padding: "10px",
+            height: "90%",
           }}
         >
           <Typography variant="h5">About</Typography>

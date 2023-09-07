@@ -1,17 +1,17 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Box from "@mui/material/Box";
-import TopBar from "./components/TopBar";
-import NavBar from "./components/NavBar";
+import TopBar from "./components/TopBar/TopBar";
+import NavBar from "./components/NavBar/NavBar";
 import PlayBar from "./components/PlayBar/PlayBar";
 import HomePage from "./components/HomePage";
-import AboutPage from "./components/AboutPage";
+import AboutPage from "./components/AboutPage/AboutPage";
 import MyMusic from "./components/MyMusic";
-import UploadPage from "./components/UploadPage";
+import UploadPage from "./components/UploadPage/UploadPage";
 import Visualizer from "./components/Visualizer";
 import LoginPage from "./components/LoginPage";
-import SignupPage from "./components/SignupPage";
+import SignupPage from "./components/SignupPage/SignupPage";
 import AuthPage from "./components/AuthPage";
-import UserPage from "./components/UserPage";
+import UserPage from "./components/UserPage/UserPage";
 
 function App() {
   return (

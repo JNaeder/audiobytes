@@ -1,5 +1,5 @@
 import { Box, Typography, Grid } from "@mui/material";
-import SongBoxSmall from "../SongBoxSmall/SongBoxSmall";
+import SongBoxSmall from "../SongBox/SongBox";
 
 function UserPageSongs({ userInfo }) {
   return (
