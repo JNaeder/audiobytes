@@ -5,13 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 
-function SongBoxPlayButton({ song }) {
+function SongBoxPlayButton({ song, isSm }) {
   const dispatch = useDispatch();
 
   const [songIsPlaying, setSongIsPlaying] = useState(false);
 
   const currentSong = useSelector((state) => state.song.currentSong);
   const isPlaying = useSelector((state) => state.song.isPlaying);
+  const [buttonSize, setButtonSize] = useState(null);
 
   const handleButtonClick = () => {
     if (currentSong && song.songID === currentSong.songID) {
@@ -30,6 +31,14 @@ function SongBoxPlayButton({ song }) {
     }
   }, [currentSong, isPlaying, song]);
 
+  useEffect(() => {
+    if (isSm) {
+      setButtonSize("40px");
+    } else {
+      setButtonSize("70px");
+    }
+  }, [buttonSize, isSm]);
+
   return (
     <>
       <Box>
@@ -37,16 +46,16 @@ function SongBoxPlayButton({ song }) {
           {songIsPlaying ? (
             <PauseCircleIcon
               sx={{
-                fontSize: "60px",
-                width: "60px",
+                fontSize: buttonSize,
+                width: buttonSize,
               }}
               color="primary"
             />
           ) : (
             <PlayCircleIcon
               sx={{
-                fontSize: "60px",
-                width: "60px",
+                fontSize: buttonSize,
+                width: buttonSize,
               }}
               color="primary"
             />

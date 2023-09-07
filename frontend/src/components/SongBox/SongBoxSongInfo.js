@@ -20,7 +20,7 @@ function SongBoxSongInfo({ song, isSm }) {
             // overflow: "hidden",
             // textOverflow: "ellipsis",
             fontSize: "1.2rem",
-            // whiteSpace: "nowrap",
+            whiteSpace: "nowrap",
           }}
         >
           {song.name}

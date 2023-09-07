@@ -35,20 +35,24 @@ function SongBoxUserInfo({ song, showUser, isSm }) {
               // backgroundColor: "red",
             }}
           >
-            <Avatar
-              src={imgUrl}
-              sx={{
-                width: "35px",
-                height: "35px",
-                marginRight: "10px",
-              }}
-            />
+            {!isSm && (
+              <Avatar
+                src={imgUrl}
+                sx={{
+                  width: "35px",
+                  height: "35px",
+                  marginRight: "10px",
+                }}
+              />
+            )}
             <Typography variant="h6">{song.username}</Typography>
           </ButtonBase>
         )}
-        <Typography variant="subtitle2" sx={{ opacity: 0.5 }}>
-          {dateUloaded}
-        </Typography>
+        {!isSm && (
+          <Typography variant="subtitle2" sx={{ opacity: 0.5 }}>
+            {dateUloaded}
+          </Typography>
+        )}
       </Box>
     </>
   );

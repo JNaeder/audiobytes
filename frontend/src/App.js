@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Box from "@mui/material/Box";
+// import { useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import TopBar from "./components/TopBar/TopBar";
 import NavBar from "./components/NavBar/NavBar";
 import PlayBar from "./components/PlayBar/PlayBar";
@@ -14,6 +15,8 @@ import AuthPage from "./components/AuthPage";
 import UserPage from "./components/UserPage/UserPage";
 
 function App() {
+  // const theme = useTheme();
+  // console.log(theme);
   return (
     <>
       <BrowserRouter>
